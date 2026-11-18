@@ -55,14 +55,8 @@ public struct ContentView: View {
         // Tint color optimized for readability and dark/light mode contrast
         .accentColor(.blue)
         // Mini-Game Preparation Sheets
-        .sheet(isPresented: $showingClozeGame) {
-            MiniGamePlaceholderView(
-                title: "Lückentext-Arena",
-                subtitle: "Progressive Context Cloze Deletions",
-                icon: "character.cursor.ibeam",
-                accentColor: .blue,
-                description: "Bereit für Mini-Game Schritt: Filtert nach der Spaced Repetition Queue, nutzt für neue Wörter das B1-Beispiel und schaltet nach 2x Folgeerfolg dynamisch auf den B2-Beispielsatz um."
-            )
+        .fullScreenCover(isPresented: $showingClozeGame) {
+            ClozeArenaView(store: store)
         }
         .sheet(isPresented: $showingReverseQuiz) {
             MiniGamePlaceholderView(

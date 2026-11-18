@@ -10,10 +10,14 @@
 		C8ED568C01DE4004453D5CCE /* VocabularyWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59BF57160938FCEF46E263E /* VocabularyWord.swift */; };
 		8C563E740605A4280068665D /* EloEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B3DD52C2ABE94CB2A1CC53 /* EloEngine.swift */; };
 		CAF0B01C83CA1CBC21F7AAED /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B100374AA8A6ED61D233144 /* CSVParser.swift */; };
+		248C23CC533E75D5D6AB0DF5 /* ClozeSentenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */; };
 		687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
 		1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1014FA971BE18F35D22A /* EloBadge.swift */; };
 		F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D944E6EDBC7754A6BF538530 /* WordRowView.swift */; };
 		CAB0E7A0CAEB353AFA21CC02 /* WordDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F57DD4DCA6ADF52F54C9F89 /* WordDetailSheet.swift */; };
+		B9D4FB03BD1B88EAED68E081 /* UmlautKeyboardBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B798BAB0F2DE92356BA07B1C /* UmlautKeyboardBar.swift */; };
+		9AA6779DAC308B0605FBA649 /* ClozeFeedbackSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92B7FF39767FD8601AC39E3F /* ClozeFeedbackSheet.swift */; };
+		5AADDB69A5F941391E89F3F8 /* ClozeArenaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A2D676CEE1A0E1C006FB3A /* ClozeArenaView.swift */; };
 		78FA522543D36630177BA3A4 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B07E93AED77D3D4E124BD0 /* DashboardView.swift */; };
 		AC047D50601F188B187AAB84 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B8CF459FE12A9C5BA2497DD /* LibraryView.swift */; };
 		C8443044F63CCA3E542953AF /* GameHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93312A9B61345037FD80D7 /* GameHubView.swift */; };
@@ -21,8 +25,8 @@
 		8DB7FF6E41BA2AD27AAEBC21 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BED1FF3E227E6F774388E4B /* ContentView.swift */; };
 		DAFA9BF575D9E4018FCBFF72 /* WortschatzApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */; };
 		F3E75360844DC3F0AF8DFB00 /* EmbeddedDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4811B095E221061620E1A9FB /* EmbeddedDataset.swift */; };
-		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
 		DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */ = {isa = PBXBuildFile; fileRef = C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */; };
+		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,10 +34,14 @@
 		A59BF57160938FCEF46E263E /* VocabularyWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyWord.swift"; sourceTree = "<group>"; };
 		74B3DD52C2ABE94CB2A1CC53 /* EloEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloEngine.swift"; sourceTree = "<group>"; };
 		5B100374AA8A6ED61D233144 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CSVParser.swift"; sourceTree = "<group>"; };
+		A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClozeSentenceEngine.swift"; sourceTree = "<group>"; };
 		3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyStore.swift"; sourceTree = "<group>"; };
 		17CB1014FA971BE18F35D22A /* EloBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloBadge.swift"; sourceTree = "<group>"; };
 		D944E6EDBC7754A6BF538530 /* WordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordRowView.swift"; sourceTree = "<group>"; };
 		7F57DD4DCA6ADF52F54C9F89 /* WordDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordDetailSheet.swift"; sourceTree = "<group>"; };
+		B798BAB0F2DE92356BA07B1C /* UmlautKeyboardBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UmlautKeyboardBar.swift"; sourceTree = "<group>"; };
+		92B7FF39767FD8601AC39E3F /* ClozeFeedbackSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClozeFeedbackSheet.swift"; sourceTree = "<group>"; };
+		34A2D676CEE1A0E1C006FB3A /* ClozeArenaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClozeArenaView.swift"; sourceTree = "<group>"; };
 		47B07E93AED77D3D4E124BD0 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardView.swift"; sourceTree = "<group>"; };
 		9B8CF459FE12A9C5BA2497DD /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LibraryView.swift"; sourceTree = "<group>"; };
 		FA93312A9B61345037FD80D7 /* GameHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameHubView.swift"; sourceTree = "<group>"; };
@@ -41,8 +49,8 @@
 		8BED1FF3E227E6F774388E4B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
 		3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WortschatzApp.swift"; sourceTree = "<group>"; };
 		4811B095E221061620E1A9FB /* EmbeddedDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbeddedDataset.swift"; sourceTree = "<group>"; };
-		8422F1B5C0821327E76963AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "wortschatz.csv"; sourceTree = "<group>"; };
+		8422F1B5C0821327E76963AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +107,7 @@
 			children = (
 				5B100374AA8A6ED61D233144 /* CSVParser.swift */,
 				74B3DD52C2ABE94CB2A1CC53 /* EloEngine.swift */,
+				A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -119,9 +128,28 @@
 				9B8CF459FE12A9C5BA2497DD /* LibraryView.swift */,
 				FA93312A9B61345037FD80D7 /* GameHubView.swift */,
 				E4A2039C342A3DE09A4F74B3 /* SettingsView.swift */,
+				82E7F3359ACBA395AF4E47AF /* Cloze */,
 				A12F749955CE4BACE9F7C1B8 /* Components */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		82E7F3359ACBA395AF4E47AF /* Cloze */ = {
+			isa = PBXGroup;
+			children = (
+				34A2D676CEE1A0E1C006FB3A /* ClozeArenaView.swift */,
+				AC9E368532011BB0AF98CCF6 /* Components */,
+			);
+			path = Cloze;
+			sourceTree = "<group>";
+		};
+		AC9E368532011BB0AF98CCF6 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B798BAB0F2DE92356BA07B1C /* UmlautKeyboardBar.swift */,
+				92B7FF39767FD8601AC39E3F /* ClozeFeedbackSheet.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		A12F749955CE4BACE9F7C1B8 /* Components */ = {
@@ -201,8 +229,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
 				DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */,
+				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,10 +244,14 @@
 				C8ED568C01DE4004453D5CCE /* VocabularyWord.swift in Sources */,
 				8C563E740605A4280068665D /* EloEngine.swift in Sources */,
 				CAF0B01C83CA1CBC21F7AAED /* CSVParser.swift in Sources */,
+				248C23CC533E75D5D6AB0DF5 /* ClozeSentenceEngine.swift in Sources */,
 				687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */,
 				1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */,
 				F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */,
 				CAB0E7A0CAEB353AFA21CC02 /* WordDetailSheet.swift in Sources */,
+				B9D4FB03BD1B88EAED68E081 /* UmlautKeyboardBar.swift in Sources */,
+				9AA6779DAC308B0605FBA649 /* ClozeFeedbackSheet.swift in Sources */,
+				5AADDB69A5F941391E89F3F8 /* ClozeArenaView.swift in Sources */,
 				78FA522543D36630177BA3A4 /* DashboardView.swift in Sources */,
 				AC047D50601F188B187AAB84 /* LibraryView.swift in Sources */,
 				C8443044F63CCA3E542953AF /* GameHubView.swift in Sources */,
