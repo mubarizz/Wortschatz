@@ -178,7 +178,7 @@ public struct ClozeArenaView: View {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 13))
-                                .foregroundColor(.amber)
+                                .foregroundColor(.orange)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(word.englishDefinition)
@@ -308,7 +308,7 @@ public struct ClozeArenaView: View {
                     .frame(width: 84, height: 84)
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.amber)
+                    .foregroundColor(.orange)
             }
             
             VStack(spacing: 6) {

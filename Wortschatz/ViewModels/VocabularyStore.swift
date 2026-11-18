@@ -255,6 +255,6 @@ public final class VocabularyStore: ObservableObject {
     
     // MARK: - Fallback Seed Data (Loads all 34 real words)
     private func loadEmbeddedFallbackData() {
-        try? loadFromRawCSV(text: EmbeddedDataset.csvString)
+        loadFromRawCSV(text: EmbeddedDataset.csvString)
     }
 }

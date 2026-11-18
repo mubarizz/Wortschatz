@@ -60,7 +60,7 @@ public final class CSVParser {
         var words: [VocabularyWord] = []
         words.reserveCapacity(rows.count - 1)
         
-        for (index, row) in rows.dropFirst().enumerated() {
+        for row in rows.dropFirst() {
             // Skip empty rows
             if row.isEmpty || (row.count == 1 && row[0].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                 continue
