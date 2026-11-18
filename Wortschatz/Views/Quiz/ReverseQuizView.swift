@@ -114,14 +114,19 @@ public struct ReverseQuizView: View {
                             
                             Spacer()
                             
-                            // Word Category Hint
-                            Text(question.targetWord.articleOrType)
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(question.targetWord.category.badgeColor)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 3)
-                                .background(question.targetWord.category.badgeColor.opacity(0.12))
-                                .cornerRadius(5)
+                            // Word Category / Part of Speech Hint
+                            HStack(spacing: 4) {
+                                Text("Wortart:")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                Text(question.targetWord.partOfSpeech.rawValue)
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(question.targetWord.category.badgeColor)
+                            }
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(question.targetWord.category.badgeColor.opacity(0.12))
+                            .cornerRadius(5)
                         }
                         
                         Text("Deutsche Definition:")

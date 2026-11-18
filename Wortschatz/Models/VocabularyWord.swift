@@ -36,6 +36,25 @@ public enum WordCategory: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - Higher-Level Part of Speech (for Quiz Distractor Matching)
+public enum PartOfSpeech: String, Codable, CaseIterable {
+    case noun = "Nomen"
+    case verb = "Verb"
+    case adjective = "Adjektiv"
+    case other = "Sonstiges"
+    
+    public static func from(rawType: String) -> PartOfSpeech {
+        let t = rawType.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if t.contains("verb") { return .verb }
+        if t.contains("adj") || t.contains("adv") { return .adjective }
+        if t == "der" || t == "die" || t == "das" || t.starts(with: "der") || t.starts(with: "die") || t.starts(with: "das") {
+            return .noun
+        }
+        return .other
+    }
+}
+
+
 // MARK: - Core Vocabulary Word Model
 public struct VocabularyWord: Identifiable, Codable, Equatable, Hashable {
     public let id: UUID
@@ -113,6 +132,10 @@ public struct VocabularyWord: Identifiable, Codable, Equatable, Hashable {
     
     public var category: WordCategory {
         WordCategory.from(rawType: articleOrType)
+    }
+    
+    public var partOfSpeech: PartOfSpeech {
+        PartOfSpeech.from(rawType: articleOrType)
     }
     
     // MARK: - Progressive Cloze Deletion Mechanics

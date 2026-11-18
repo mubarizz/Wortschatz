@@ -18,19 +18,18 @@ public enum QuizEngine {
     /// Distractors prioritize words of the same grammatical category (nouns with nouns, verbs with verbs)
     public static func generateQuestion(target: VocabularyWord, allWords: [VocabularyWord]) -> QuizQuestion {
         let pool = allWords.filter { $0.id != target.id }
+        let targetPoS = target.partOfSpeech
         
-        // 1. Try to find distractors of the same category (e.g., both Verbs or both feminine nouns)
-        var preferredDistractors = pool.filter { $0.category == target.category }
+        // Strictly select distractors of the exact same part of speech (Noun, Verb, or Adjective)
+        var matchingDistractors = pool.filter { $0.partOfSpeech == targetPoS }.shuffled()
         
-        // If not enough same-category words, supplement with any words
-        if preferredDistractors.count < 3 {
-            let remaining = pool.filter { !preferredDistractors.contains($0) }
-            preferredDistractors.append(contentsOf: remaining.shuffled())
-        } else {
-            preferredDistractors.shuffle()
+        // Fallback safeguard only if a small dataset has fewer than 3 words of this part of speech
+        if matchingDistractors.count < 3 {
+            let remaining = pool.filter { !matchingDistractors.contains($0) }.shuffled()
+            matchingDistractors.append(contentsOf: remaining)
         }
         
-        let selectedDistractors = Array(preferredDistractors.prefix(3))
+        let selectedDistractors = Array(matchingDistractors.prefix(3))
         
         // Combine target with distractors and shuffle
         var allOptions = selectedDistractors
