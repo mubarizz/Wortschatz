@@ -21,6 +21,7 @@
 		8DB7FF6E41BA2AD27AAEBC21 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BED1FF3E227E6F774388E4B /* ContentView.swift */; };
 		DAFA9BF575D9E4018FCBFF72 /* WortschatzApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */; };
 		F3E75360844DC3F0AF8DFB00 /* EmbeddedDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4811B095E221061620E1A9FB /* EmbeddedDataset.swift */; };
+		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
 		DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */ = {isa = PBXBuildFile; fileRef = C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 		8BED1FF3E227E6F774388E4B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
 		3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WortschatzApp.swift"; sourceTree = "<group>"; };
 		4811B095E221061620E1A9FB /* EmbeddedDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbeddedDataset.swift"; sourceTree = "<group>"; };
+		8422F1B5C0821327E76963AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "wortschatz.csv"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,6 +81,7 @@
 				C51289E1A8124B6C9D47CACA /* ViewModels */,
 				D778815D691A486EF850AB00 /* Views */,
 				EE70B022B802CA5D60D152A8 /* Resources */,
+				8422F1B5C0821327E76963AD /* Assets.xcassets */,
 			);
 			path = Wortschatz;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
 				DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
