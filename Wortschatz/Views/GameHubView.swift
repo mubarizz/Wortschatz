@@ -5,15 +5,18 @@ public struct GameHubView: View {
     @ObservedObject var store: VocabularyStore
     let onSelectCloze: () -> Void
     let onSelectReverseQuiz: () -> Void
+    let onSelectFlashcards: () -> Void
     
     public init(
         store: VocabularyStore,
         onSelectCloze: @escaping () -> Void,
-        onSelectReverseQuiz: @escaping () -> Void
+        onSelectReverseQuiz: @escaping () -> Void,
+        onSelectFlashcards: @escaping () -> Void
     ) {
         self.store = store
         self.onSelectCloze = onSelectCloze
         self.onSelectReverseQuiz = onSelectReverseQuiz
+        self.onSelectFlashcards = onSelectFlashcards
     }
     
     public var body: some View {
@@ -33,7 +36,70 @@ public struct GameHubView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
                     
-                    // Card 1: Progressive Context Cloze
+                    // Card 1: Flashcards (Learn First)
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .top) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.orange.opacity(0.15))
+                                    .frame(width: 44, height: 44)
+                                Image(systemName: "rectangle.stack.fill")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.orange)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Karteikarten")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.primary)
+                                Text("Lernen & Verinnerlichen")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.orange)
+                            }
+                            
+                            Spacer()
+                            
+                            Text("Audio & 3D")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(Color.orange.opacity(0.12))
+                                .cornerRadius(4)
+                        }
+                        
+                        Text("Verinnerliche neue Vokabeln mit nativer deutscher Sprachausgabe, taktilen 3D-Drehkarten und Beispielsätzen vor dem Testen.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(2)
+                        
+                        HStack {
+                            Label("Leitner & Swipe-System", systemImage: "hand.draw.fill")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.orange)
+                            
+                            Spacer()
+                            
+                            Button(action: onSelectFlashcards) {
+                                HStack(spacing: 4) {
+                                    Text("Lernen")
+                                        .font(.system(size: 13, weight: .bold))
+                                    Image(systemName: "play.fill")
+                                        .font(.system(size: 10))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background(Color.orange)
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
+                    .padding(14)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(14)
+                    
+                    // Card 2: Progressive Context Cloze
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(alignment: .top) {
                             ZStack {

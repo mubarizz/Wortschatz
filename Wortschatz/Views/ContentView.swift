@@ -12,9 +12,9 @@ public struct ContentView: View {
     @StateObject private var store = VocabularyStore()
     @State private var selectedTab: AppTab = .dashboard
     
-    // Mini-game activation triggers (ready for the upcoming mini-game views)
     @State private var showingClozeGame: Bool = false
     @State private var showingReverseQuiz: Bool = false
+    @State private var showingFlashcards: Bool = false
     
     public init() {}
     
@@ -23,7 +23,8 @@ public struct ContentView: View {
             DashboardView(
                 store: store,
                 onStartCloze: { showingClozeGame = true },
-                onStartReverseQuiz: { showingReverseQuiz = true }
+                onStartReverseQuiz: { showingReverseQuiz = true },
+                onStartFlashcards: { showingFlashcards = true }
             )
             .tabItem {
                 Label("Arena", systemImage: "bolt.shield.fill")
@@ -33,7 +34,8 @@ public struct ContentView: View {
             GameHubView(
                 store: store,
                 onSelectCloze: { showingClozeGame = true },
-                onSelectReverseQuiz: { showingReverseQuiz = true }
+                onSelectReverseQuiz: { showingReverseQuiz = true },
+                onSelectFlashcards: { showingFlashcards = true }
             )
             .tabItem {
                 Label("Spiele", systemImage: "gamecontroller.fill")
@@ -54,7 +56,10 @@ public struct ContentView: View {
         }
         // Tint color optimized for readability and dark/light mode contrast
         .accentColor(.blue)
-        // Mini-Game Preparation Sheets
+        // Interactive Study Modes
+        .fullScreenCover(isPresented: $showingFlashcards) {
+            FlashcardDeckView(store: store)
+        }
         .fullScreenCover(isPresented: $showingClozeGame) {
             ClozeArenaView(store: store)
         }
@@ -64,73 +69,4 @@ public struct ContentView: View {
     }
 }
 
-// MARK: - Mini-Game Preparation Placeholder
-struct MiniGamePlaceholderView: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let accentColor: Color
-    let description: String
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Spacer()
-                
-                ZStack {
-                    Circle()
-                        .fill(accentColor.opacity(0.12))
-                        .frame(width: 80, height: 80)
-                    Image(systemName: icon)
-                        .font(.system(size: 36, weight: .bold))
-                        .foregroundColor(accentColor)
-                }
-                
-                VStack(spacing: 6) {
-                    Text(title)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                    
-                    Text(subtitle)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(accentColor)
-                }
-                
-                Text(description)
-                    .font(.system(size: 13))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 28)
-                    .lineSpacing(3)
-                
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("Datenmodell & SRS-Engine bereit")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.primary)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(20)
-                
-                Spacer()
-                
-                Button(action: { dismiss() }) {
-                    Text("Schließen")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(accentColor)
-                        .cornerRadius(12)
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 12)
-            }
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
+

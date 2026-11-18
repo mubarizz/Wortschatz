@@ -5,17 +5,20 @@ public struct DashboardView: View {
     @ObservedObject var store: VocabularyStore
     let onStartCloze: () -> Void
     let onStartReverseQuiz: () -> Void
+    let onStartFlashcards: () -> Void
     
     @State private var selectedWordForDetail: VocabularyWord?
     
     public init(
         store: VocabularyStore,
         onStartCloze: @escaping () -> Void,
-        onStartReverseQuiz: @escaping () -> Void
+        onStartReverseQuiz: @escaping () -> Void,
+        onStartFlashcards: @escaping () -> Void
     ) {
         self.store = store
         self.onStartCloze = onStartCloze
         self.onStartReverseQuiz = onStartReverseQuiz
+        self.onStartFlashcards = onStartFlashcards
     }
     
     public var body: some View {
@@ -115,6 +118,50 @@ public struct DashboardView: View {
                     
                     // MARK: - 2. Quick Game Mode Launchers (Touch target >= 44pt)
                     VStack(spacing: 8) {
+                        // Flashcards Launcher Button (Learn First)
+                        Button(action: onStartFlashcards) {
+                            HStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.orange.opacity(0.15))
+                                        .frame(width: 44, height: 44)
+                                    Image(systemName: "rectangle.stack.fill")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.orange)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack {
+                                        Text("Karteikarten")
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(.primary)
+                                        
+                                        Text("Audio & 3D")
+                                            .font(.system(size: 9, weight: .heavy))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 2)
+                                            .background(Color.orange)
+                                            .cornerRadius(4)
+                                    }
+                                    Text("Neue Wörter verinnerlichen mit deutscher Aussprache")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.orange)
+                            }
+                            .padding(12)
+                            .background(Color(UIColor.secondarySystemBackground))
+                            .cornerRadius(12)
+                        }
+                        .buttonStyle(.plain)
+                        
                         // Cloze Mode Launcher Button
                         Button(action: onStartCloze) {
                             HStack(spacing: 12) {
