@@ -58,14 +58,8 @@ public struct ContentView: View {
         .fullScreenCover(isPresented: $showingClozeGame) {
             ClozeArenaView(store: store)
         }
-        .sheet(isPresented: $showingReverseQuiz) {
-            MiniGamePlaceholderView(
-                title: "Rückwärts-Quiz",
-                subtitle: "Reverse-Engineering Target Deduction",
-                icon: "arrow.triangle.turn.up.right.diamond.fill",
-                accentColor: .purple,
-                description: "Bereit für Mini-Game Schritt: Versteckt die englische Definition vollständig, zeigt nur die deutsche Definition und fordert die Wahl des richtigen Zielworts aus 4 Optionen."
-            )
+        .fullScreenCover(isPresented: $showingReverseQuiz) {
+            ReverseQuizView(store: store)
         }
     }
 }
