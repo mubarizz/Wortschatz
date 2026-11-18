@@ -16,6 +16,11 @@
 		E9792A512A6822D672C7CD47 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB2A1292502FC216E987B2D /* GeminiService.swift */; };
 		F9792A512A6822D672C7CD48 /* GeminiWordSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */; };
 		A9792A512A6822D672C7CD49 /* AudioDictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB2A1292502FC216E987B2F /* AudioDictationView.swift */; };
+		B9792A512A6822D672C7CD50 /* GrammarTopic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2A1292502FC216E987B30 /* GrammarTopic.swift */; };
+		C9792A512A6822D672C7CD51 /* GrammarStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2A1292502FC216E987B31 /* GrammarStore.swift */; };
+		D9792A512A6822D672C7CD52 /* GrammarHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB2A1292502FC216E987B32 /* GrammarHubView.swift */; };
+		E9792A512A6822D672C7CD53 /* SatzbauGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2A1292502FC216E987B33 /* SatzbauGameView.swift */; };
+		F9792A512A6822D672C7CD54 /* StrukturSprintGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB2A1292502FC216E987B34 /* StrukturSprintGameView.swift */; };
 		687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
 		1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1014FA971BE18F35D22A /* EloBadge.swift */; };
 		F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D944E6EDBC7754A6BF538530 /* WordRowView.swift */; };
@@ -34,6 +39,7 @@
 		DAFA9BF575D9E4018FCBFF72 /* WortschatzApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */; };
 		F3E75360844DC3F0AF8DFB00 /* EmbeddedDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4811B095E221061620E1A9FB /* EmbeddedDataset.swift */; };
 		DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */ = {isa = PBXBuildFile; fileRef = C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */; };
+		EA0F943D73307347AB6D162C /* grammar_exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */; };
 		48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */; };
 		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -49,6 +55,11 @@
 		4AB2A1292502FC216E987B2D /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiService.swift"; sourceTree = "<group>"; };
 		5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiWordSearchSheet.swift"; sourceTree = "<group>"; };
 		6AB2A1292502FC216E987B2F /* AudioDictationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioDictationView.swift"; sourceTree = "<group>"; };
+		7AB2A1292502FC216E987B30 /* GrammarTopic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GrammarTopic.swift"; sourceTree = "<group>"; };
+		8AB2A1292502FC216E987B31 /* GrammarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GrammarStore.swift"; sourceTree = "<group>"; };
+		9AB2A1292502FC216E987B32 /* GrammarHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GrammarHubView.swift"; sourceTree = "<group>"; };
+		0AB2A1292502FC216E987B33 /* SatzbauGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SatzbauGameView.swift"; sourceTree = "<group>"; };
+		1AB2A1292502FC216E987B34 /* StrukturSprintGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StrukturSprintGameView.swift"; sourceTree = "<group>"; };
 		3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyStore.swift"; sourceTree = "<group>"; };
 		17CB1014FA971BE18F35D22A /* EloBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloBadge.swift"; sourceTree = "<group>"; };
 		D944E6EDBC7754A6BF538530 /* WordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordRowView.swift"; sourceTree = "<group>"; };
@@ -67,6 +78,7 @@
 		3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WortschatzApp.swift"; sourceTree = "<group>"; };
 		4811B095E221061620E1A9FB /* EmbeddedDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbeddedDataset.swift"; sourceTree = "<group>"; };
 		C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "wortschatz.csv"; sourceTree = "<group>"; };
+		D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "grammar_exercises.json"; sourceTree = "<group>"; };
 		E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "appicon_source.jpg"; sourceTree = "<group>"; };
 		8422F1B5C0821327E76963AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				A59BF57160938FCEF46E263E /* VocabularyWord.swift */,
+				7AB2A1292502FC216E987B30 /* GrammarTopic.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -137,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */,
+				8AB2A1292502FC216E987B31 /* GrammarStore.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -153,9 +167,20 @@
 				82E7F3359ACBA395AF4E47AF /* Cloze */,
 				966EA2472C7A3B121887D939 /* Quiz */,
 				776EA2472C7A3B121887D940 /* Dictation */,
+				886EA2472C7A3B121887D941 /* Grammar */,
 				A12F749955CE4BACE9F7C1B8 /* Components */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		886EA2472C7A3B121887D941 /* Grammar */ = {
+			isa = PBXGroup;
+			children = (
+				9AB2A1292502FC216E987B32 /* GrammarHubView.swift */,
+				0AB2A1292502FC216E987B33 /* SatzbauGameView.swift */,
+				1AB2A1292502FC216E987B34 /* StrukturSprintGameView.swift */,
+			);
+			path = Grammar;
 			sourceTree = "<group>";
 		};
 		776EA2472C7A3B121887D940 /* Dictation */ = {
@@ -216,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */,
+				D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */,
 				E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */,
 				4811B095E221061620E1A9FB /* EmbeddedDataset.swift */,
 			);
@@ -283,6 +309,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */,
+				EA0F943D73307347AB6D162C /* grammar_exercises.json in Resources */,
 				48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */,
 				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
 			);
@@ -304,6 +331,11 @@
 				E9792A512A6822D672C7CD47 /* GeminiService.swift in Sources */,
 				F9792A512A6822D672C7CD48 /* GeminiWordSearchSheet.swift in Sources */,
 				A9792A512A6822D672C7CD49 /* AudioDictationView.swift in Sources */,
+				B9792A512A6822D672C7CD50 /* GrammarTopic.swift in Sources */,
+				C9792A512A6822D672C7CD51 /* GrammarStore.swift in Sources */,
+				D9792A512A6822D672C7CD52 /* GrammarHubView.swift in Sources */,
+				E9792A512A6822D672C7CD53 /* SatzbauGameView.swift in Sources */,
+				F9792A512A6822D672C7CD54 /* StrukturSprintGameView.swift in Sources */,
 				687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */,
 				1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */,
 				F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */,

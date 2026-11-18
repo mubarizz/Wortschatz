@@ -4,12 +4,14 @@ import UIKit
 public enum AppTab: Int, Hashable {
     case dashboard = 0
     case games = 1
-    case library = 2
-    case settings = 3
+    case grammar = 2
+    case library = 3
+    case settings = 4
 }
 
 public struct ContentView: View {
     @StateObject private var store = VocabularyStore()
+    @StateObject private var grammarStore = GrammarStore()
     @State private var selectedTab: AppTab = .dashboard
     
     @State private var showingClozeGame: Bool = false
@@ -44,6 +46,12 @@ public struct ContentView: View {
                 Label("Spiele", systemImage: "gamecontroller.fill")
             }
             .tag(AppTab.games)
+            
+            GrammarHubView(grammarStore: grammarStore, vocabStore: store)
+                .tabItem {
+                    Label("Grammatik", systemImage: "rectangle.3.group.fill")
+                }
+                .tag(AppTab.grammar)
             
             LibraryView(store: store)
                 .tabItem {
