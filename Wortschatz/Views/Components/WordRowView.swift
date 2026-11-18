@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct WordRowView: View {
     let word: VocabularyWord

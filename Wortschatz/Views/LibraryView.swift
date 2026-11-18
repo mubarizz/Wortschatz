@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct LibraryView: View {
     @ObservedObject var store: VocabularyStore

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public enum AppTab: Int, Hashable {
     case dashboard = 0

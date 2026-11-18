@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct DashboardView: View {
     @ObservedObject var store: VocabularyStore

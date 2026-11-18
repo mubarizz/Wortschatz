@@ -62,26 +62,39 @@ public final class VocabularyStore: ObservableObject {
             }
         }
         
-        // 3. Fallback to bundled wortschatz.csv
+        // 3. Fallback to bundled wortschatz.csv or embedded dataset
         loadFromBundledCSV()
     }
     
     public func loadFromBundledCSV() {
         // Try Bundle.main
         if let bundleURL = Bundle.main.url(forResource: "wortschatz", withExtension: "csv") {
-            loadFromCSVURL(bundleURL)
-            return
+            do {
+                let parsed = try CSVParser.shared.parse(fileURL: bundleURL)
+                if !parsed.isEmpty {
+                    self.words = parsed
+                    saveWordsToDisk()
+                    self.isLoading = false
+                    return
+                }
+            } catch {
+                print("Bundle CSV failed: \(error.localizedDescription)")
+            }
         }
         
-        // Try direct file path (useful for testing and workspace previews)
+        // Try direct file path (useful for local development testing)
         let localPath = "/home/antigravity/wortschatz.csv"
         let fallbackURL = URL(fileURLWithPath: localPath)
         if FileManager.default.fileExists(atPath: fallbackURL.path) {
-            loadFromCSVURL(fallbackURL)
-            return
+            if let parsed = try? CSVParser.shared.parse(fileURL: fallbackURL), !parsed.isEmpty {
+                self.words = parsed
+                saveWordsToDisk()
+                self.isLoading = false
+                return
+            }
         }
         
-        // If neither is accessible, fallback to embedded seed string
+        // Embedded 34-word dataset fallback: 100% reliable in any Xcode simulator or test
         loadEmbeddedFallbackData()
     }
     
@@ -215,7 +228,6 @@ public final class VocabularyStore: ObservableObject {
             return
         }
         if calendar.isDateInToday(last) {
-            // Already counted today
             return
         }
         if calendar.isDateInYesterday(last) {
@@ -241,14 +253,8 @@ public final class VocabularyStore: ObservableObject {
         loadFromBundledCSV()
     }
     
-    // MARK: - Fallback Seed Data
+    // MARK: - Fallback Seed Data (Loads all 34 real words)
     private func loadEmbeddedFallbackData() {
-        let seed = """
-        Article/Type,Word,English Definition,German Definition,B1 Example,B2 Example
-        die,Entscheidung,"Decision, conclusion, or ruling.",Eine verbindliche Wahl zwischen zwei oder mehreren Möglichkeiten; ein abschließender Beschluss.,Wir müssen heute eine sehr wichtige Entscheidung treffen.,"Es fällt mir oft schwer, unter Zeitdruck eine vernünftige Entscheidung zu treffen."
-        der,Schein,"Appearance / illusion, or a bill / banknote / certificate.",Das äußere Aussehen oder die Wirkung einer Sache (oft trügerisch); alternativ ein bedrucktes Papier mit einem bestimmten Wert (wie ein Geldschein oder ein Zertifikat).,Kannst du diesen großen Schein an der Kasse wechseln?,"Lass dich nicht vom äußeren Schein täuschen, denn die Realität sieht oft ganz anders aus."
-        die,Münze,Coin.,"Ein kleines, flaches und meist rundes Stück Metall, das als offizielles Zahlungsmittel dient.",Hast du eine Münze für den Einkaufswagen?,In vielen europäischen Ländern wurden die alten nationalen Währungen durch Euro-Münzen und -Scheine ersetzt.
-        """
-        try? loadFromRawCSV(text: seed)
+        try? loadFromRawCSV(text: EmbeddedDataset.csvString)
     }
 }

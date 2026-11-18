@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct GameHubView: View {
     @ObservedObject var store: VocabularyStore
