@@ -15,6 +15,7 @@ public struct ContentView: View {
     @State private var showingClozeGame: Bool = false
     @State private var showingReverseQuiz: Bool = false
     @State private var showingFlashcards: Bool = false
+    @State private var showingDictationGame: Bool = false
     
     public init() {}
     
@@ -24,7 +25,8 @@ public struct ContentView: View {
                 store: store,
                 onStartCloze: { showingClozeGame = true },
                 onStartReverseQuiz: { showingReverseQuiz = true },
-                onStartFlashcards: { showingFlashcards = true }
+                onStartFlashcards: { showingFlashcards = true },
+                onStartDictation: { showingDictationGame = true }
             )
             .tabItem {
                 Label("Arena", systemImage: "bolt.shield.fill")
@@ -35,7 +37,8 @@ public struct ContentView: View {
                 store: store,
                 onSelectCloze: { showingClozeGame = true },
                 onSelectReverseQuiz: { showingReverseQuiz = true },
-                onSelectFlashcards: { showingFlashcards = true }
+                onSelectFlashcards: { showingFlashcards = true },
+                onSelectDictation: { showingDictationGame = true }
             )
             .tabItem {
                 Label("Spiele", systemImage: "gamecontroller.fill")
@@ -65,6 +68,9 @@ public struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showingReverseQuiz) {
             ReverseQuizView(store: store)
+        }
+        .fullScreenCover(isPresented: $showingDictationGame) {
+            AudioDictationView(store: store)
         }
     }
 }

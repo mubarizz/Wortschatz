@@ -71,7 +71,7 @@ public struct ClozeArenaView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     if let word = currentWord {
-                        EloBadge(elo: word.elo, showLabel: false, compact: true)
+                        LearnScoreBadge(word: word, showLabel: false, compact: true)
                     }
                 }
             }
@@ -267,12 +267,16 @@ public struct ClozeArenaView: View {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
         }
         
-        // Update Spaced Repetition Elo via store
-        latestEloResult = store.recordAttempt(wordId: word.id, success: correct)
+        // Update Spaced Repetition Learn Score & Elo via store
+        latestEloResult = store.recordAttempt(wordId: word.id, success: correct, mode: .cloze)
+        if let updated = store.words.first(where: { $0.id == word.id }) {
+            sessionWords[currentIndex] = updated
+        }
         isAnswerSubmitted = true
     }
     
     private func advanceToNextWord() {
+        AudioSpeaker.shared.stop()
         isAnswerSubmitted = false
         userInput = ""
         
@@ -285,9 +289,8 @@ public struct ClozeArenaView: View {
     }
     
     private func startNewSession() {
-        // Draw top 10 highest-urgency items from spaced repetition queue
-        let queue = store.spacedRepetitionQueue
-        self.sessionWords = Array(queue.prefix(10))
+        // Draw 10 words using 80% Unlearned (<75%) / 20% Learned (>=75%) smart sampling
+        self.sessionWords = store.generateSmartSession(count: 10)
         self.currentIndex = 0
         self.userInput = ""
         self.isAnswerSubmitted = false

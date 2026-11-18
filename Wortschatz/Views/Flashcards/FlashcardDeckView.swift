@@ -2,16 +2,16 @@ import SwiftUI
 import UIKit
 
 public enum FlashcardDeckFilter: String, CaseIterable {
-    case unlearned = "Neu"
-    case srsQueue = "SRS Queue"
-    case allWords = "Alle"
+    case smartMix = "Smart (80/20)"
+    case unlearned = "Zu lernen"
+    case learned = "Gelernt ✓"
 }
 
 public struct FlashcardDeckView: View {
     @ObservedObject var store: VocabularyStore
     @Environment(\.dismiss) private var dismiss
     
-    @State private var selectedFilter: FlashcardDeckFilter = .srsQueue
+    @State private var selectedFilter: FlashcardDeckFilter = .smartMix
     @State private var deckWords: [VocabularyWord] = []
     @State private var currentIndex: Int = 0
     @State private var isCardFlipped: Bool = false
@@ -69,12 +69,15 @@ public struct FlashcardDeckView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     if let word = currentWord {
-                        EloBadge(elo: word.elo, showLabel: false, compact: true)
+                        LearnScoreBadge(word: word, showLabel: false, compact: true)
                     }
                 }
             }
             .onAppear {
                 buildDeck()
+            }
+            .onDisappear {
+                AudioSpeaker.shared.stop()
             }
         }
     }
@@ -152,19 +155,21 @@ public struct FlashcardDeckView: View {
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.system(size: 15, weight: .bold))
                             Text("Noch üben")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                         }
                         .foregroundColor(.red)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.red.opacity(0.12))
-                        .cornerRadius(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.red.opacity(0.12))
+                        )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.red.opacity(0.25), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(Color.red.opacity(0.25), lineWidth: 1)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(ScaleButtonStyle(scaleAmount: 0.96))
                     
                     // 2. "Gelernt" / Easy button
                     Button(action: { rateWord(success: true) }) {
@@ -172,19 +177,21 @@ public struct FlashcardDeckView: View {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 15, weight: .bold))
                             Text("Gelernt")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                         }
                         .foregroundColor(.green)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.green.opacity(0.12))
-                        .cornerRadius(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.green.opacity(0.12))
+                        )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.green.opacity(0.25), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(Color.green.opacity(0.25), lineWidth: 1)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(ScaleButtonStyle(scaleAmount: 0.96))
                 }
                 .padding(.horizontal, 16)
                 
@@ -200,12 +207,16 @@ public struct FlashcardDeckView: View {
     private func rateWord(success: Bool) {
         guard let word = currentWord else { return }
         
+        // Stop any currently playing audio from the previous card
+        AudioSpeaker.shared.stop()
+        
         UIImpactFeedbackGenerator(style: success ? .medium : .light).impactOccurred()
+        
+        // Record attempt in store Learn Score & Elo engine for both success and repeat
+        store.recordAttempt(wordId: word.id, success: success, mode: .flashcard)
         
         if success {
             wordsMasteredInSession += 1
-            // Record mastery in store Elo engine
-            store.recordAttempt(wordId: word.id, success: true)
         } else {
             wordsToReviewAgain.append(word)
         }
@@ -223,14 +234,15 @@ public struct FlashcardDeckView: View {
     }
     
     private func buildDeck() {
+        AudioSpeaker.shared.stop()
         switch selectedFilter {
+        case .smartMix:
+            deckWords = store.generateSmartSession(count: 15)
         case .unlearned:
-            let newWords = store.words.filter { $0.reviewsCount == 0 }
-            deckWords = newWords.isEmpty ? Array(store.words.prefix(10)) : newWords
-        case .srsQueue:
-            deckWords = Array(store.spacedRepetitionQueue.prefix(15))
-        case .allWords:
-            deckWords = store.words
+            let pool = store.unlearnedWords.sorted { $0.learnScore < $1.learnScore }
+            deckWords = pool.isEmpty ? store.generateSmartSession(count: 10) : pool
+        case .learned:
+            deckWords = store.learnedWords.sorted { ($0.lastReviewedAt ?? .distantPast) < ($1.lastReviewedAt ?? .distantPast) }
         }
         currentIndex = 0
         isCardFlipped = false
@@ -313,8 +325,8 @@ public struct FlashcardDeckView: View {
                 .foregroundColor(.secondary)
             Text("Keine Karten in diesem Stapel")
                 .font(.system(size: 16, weight: .bold))
-            Button("Alle Wörter laden", action: {
-                selectedFilter = .allWords
+            Button("Smart-Stapel laden", action: {
+                selectedFilter = .smartMix
                 buildDeck()
             })
             .font(.system(size: 14, weight: .semibold))

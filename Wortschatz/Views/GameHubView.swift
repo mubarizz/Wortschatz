@@ -6,223 +6,192 @@ public struct GameHubView: View {
     let onSelectCloze: () -> Void
     let onSelectReverseQuiz: () -> Void
     let onSelectFlashcards: () -> Void
+    var onSelectDictation: (() -> Void)? = nil
     
     public init(
         store: VocabularyStore,
         onSelectCloze: @escaping () -> Void,
         onSelectReverseQuiz: @escaping () -> Void,
-        onSelectFlashcards: @escaping () -> Void
+        onSelectFlashcards: @escaping () -> Void,
+        onSelectDictation: (() -> Void)? = nil
     ) {
         self.store = store
         self.onSelectCloze = onSelectCloze
         self.onSelectReverseQuiz = onSelectReverseQuiz
         self.onSelectFlashcards = onSelectFlashcards
+        self.onSelectDictation = onSelectDictation
     }
     
     public var body: some View {
         NavigationView {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 14) {
                     
                     // Header Banner
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text("Trainingsmodi")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 20, weight: .black, design: .rounded))
                             .foregroundColor(.primary)
-                        Text("Wähle deinen Lernmodus für die heutige B2-Einheit.")
-                            .font(.system(size: 13))
+                        Text("Wähle deinen Lernmodus • 80% Zu lernen / 20% Gelernt")
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
                     
-                    // Card 1: Flashcards (Learn First)
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.orange.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-                                Image(systemName: "rectangle.stack.fill")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.orange)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Karteikarten")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("Lernen & Verinnerlichen")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.orange)
-                            }
-                            
-                            Spacer()
-                            
-                            Text("Audio & 3D")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.orange)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(Color.orange.opacity(0.12))
-                                .cornerRadius(4)
-                        }
-                        
-                        Text("Verinnerliche neue Vokabeln mit nativer deutscher Sprachausgabe, taktilen 3D-Drehkarten und Beispielsätzen vor dem Testen.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                            .lineSpacing(2)
-                        
-                        HStack {
-                            Label("Leitner & Swipe-System", systemImage: "hand.draw.fill")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.orange)
-                            
-                            Spacer()
-                            
-                            Button(action: onSelectFlashcards) {
-                                HStack(spacing: 4) {
-                                    Text("Lernen")
-                                        .font(.system(size: 13, weight: .bold))
-                                    Image(systemName: "play.fill")
-                                        .font(.system(size: 10))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 7)
-                                .background(Color.orange)
-                                .cornerRadius(8)
-                            }
-                        }
-                    }
-                    .padding(14)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(14)
+                    GameHubCard(
+                        title: "Karteikarten",
+                        subtitle: "Lernen & Verinnerlichen",
+                        badge: "Audio & 3D",
+                        description: "Verinnerliche neue Vokabeln mit deutscher Sprachausgabe, taktilen 3D-Drehkarten und B1/B2-Beispielsätzen.",
+                        footerLabel: "+20% Lern-Score • Swipe-System",
+                        footerIcon: "hand.draw.fill",
+                        icon: "rectangle.stack.fill",
+                        color: Color(red: 0.94, green: 0.50, blue: 0.10),
+                        buttonTitle: "Lernen",
+                        action: onSelectFlashcards
+                    )
                     
-                    // Card 2: Progressive Context Cloze
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-                                Image(systemName: "character.cursor.ibeam")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Lückentext-Arena")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("Progressive B1 ➔ B2 Cloze")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            Spacer()
-                            
-                            EloBadge(elo: store.userElo, showLabel: false, compact: true)
-                        }
-                        
-                        Text("Neue Wörter starten mit dem einfacheren B1-Beispielsatz. Sobald du das Wort 2x hintereinander beherrschst, schaltet die Arena dynamisch auf den anspruchsvollen B2-Satz um.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                            .lineSpacing(2)
-                        
-                        HStack {
-                            Label("\(store.b2UnlockedWords.count) B2 Freigeschaltet", systemImage: "sparkles")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.indigo)
-                            
-                            Spacer()
-                            
-                            Button(action: onSelectCloze) {
-                                HStack(spacing: 4) {
-                                    Text("Starten")
-                                        .font(.system(size: 13, weight: .bold))
-                                    Image(systemName: "play.fill")
-                                        .font(.system(size: 10))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 7)
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                            }
-                        }
-                    }
-                    .padding(14)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(14)
+                    GameHubCard(
+                        title: "Lückentext-Arena",
+                        subtitle: "Progressive B1 ➔ B2 Cloze",
+                        badge: "Aktiv Schreiben",
+                        description: "Neue Wörter starten mit dem B1-Beispielsatz. Ab 50% Lern-Score schaltet die Arena dynamisch auf den B2-Satz um.",
+                        footerLabel: "+30% Lern-Score • \(store.b2UnlockedWords.count) B2 aktiv",
+                        footerIcon: "sparkles",
+                        icon: "character.cursor.ibeam",
+                        color: Color(red: 0.14, green: 0.46, blue: 0.96),
+                        buttonTitle: "Starten",
+                        action: onSelectCloze
+                    )
                     
-                    // Card 2: Reverse-Engineering Quiz
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.purple.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-                                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.purple)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Rückwärts-Quiz")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("100% Zielsprachen-Deduktion")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.purple)
-                            }
-                            
-                            Spacer()
-                            
-                            Text("Multiple Choice")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.purple)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(Color.purple.opacity(0.12))
-                                .cornerRadius(4)
-                        }
-                        
-                        Text("Versteckt die englische Übersetzung vollständig! Du siehst ausschließlich die präzise deutsche Definition und musst das gesuchte Zielwort aus 4 Optionen ableiten.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                            .lineSpacing(2)
-                        
-                        HStack {
-                            Label("Kein Englisch erlaubt", systemImage: "eye.slash.fill")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.purple)
-                            
-                            Spacer()
-                            
-                            Button(action: onSelectReverseQuiz) {
-                                HStack(spacing: 4) {
-                                    Text("Starten")
-                                        .font(.system(size: 13, weight: .bold))
-                                    Image(systemName: "play.fill")
-                                        .font(.system(size: 10))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 7)
-                                .background(Color.purple)
-                                .cornerRadius(8)
-                            }
-                        }
+                    GameHubCard(
+                        title: "Rückwärts-Quiz",
+                        subtitle: "100% Zielsprachen-Deduktion",
+                        badge: "Multiple Choice",
+                        description: "Versteckt die englische Übersetzung! Leite das gesuchte Zielwort anhand der deutschen Definition aus 4 Optionen derselben Wortart ab.",
+                        footerLabel: "+25% Lern-Score • Kein Englisch",
+                        footerIcon: "eye.slash.fill",
+                        icon: "arrow.triangle.turn.up.right.diamond.fill",
+                        color: Color(red: 0.55, green: 0.27, blue: 0.93),
+                        buttonTitle: "Starten",
+                        action: onSelectReverseQuiz
+                    )
+                    
+                    if let onSelectDictation = onSelectDictation {
+                        GameHubCard(
+                            title: "Hör-Diktat",
+                            subtitle: "Hörverständnis & Rechtschreibung",
+                            badge: "Normal & 0.7x",
+                            description: "Das Zielwort ist ausgeblendet – höre dir das Wort (normal oder langsam) sowie den Beispielsatz an und schreibe die Vokabel auf.",
+                            footerLabel: "+10% Lern-Score • Audio-Training",
+                            footerIcon: "ear.and.waveform",
+                            icon: "headphones",
+                            color: Color(red: 0.06, green: 0.62, blue: 0.66),
+                            buttonTitle: "Starten",
+                            action: onSelectDictation
+                        )
                     }
-                    .padding(14)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(14)
                 }
                 .padding(14)
             }
+            .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
             .navigationTitle("Trainieren")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+private struct GameHubCard: View {
+    let title: String
+    let subtitle: String
+    let badge: String
+    let description: String
+    let footerLabel: String
+    let footerIcon: String
+    let icon: String
+    let color: Color
+    let buttonTitle: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        }) {
+            VStack(alignment: .leading, spacing: 11) {
+                HStack(alignment: .center, spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(color.opacity(0.14))
+                            .frame(width: 46, height: 46)
+                        Image(systemName: icon)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(color)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                        Text(subtitle)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(color)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(badge)
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                        .foregroundColor(color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(color.opacity(0.12))
+                        .cornerRadius(6)
+                }
+                
+                Text(description)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.secondary)
+                    .lineSpacing(2.5)
+                    .multilineTextAlignment(.leading)
+                
+                Divider()
+                    .opacity(0.6)
+                
+                HStack {
+                    Label(footerLabel, systemImage: footerIcon)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(color)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 5) {
+                        Text(buttonTitle)
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(
+                        Capsule()
+                            .fill(color)
+                    )
+                }
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.035), radius: 8, y: 3)
+        }
+        .buttonStyle(ScaleButtonStyle(scaleAmount: 0.97))
     }
 }

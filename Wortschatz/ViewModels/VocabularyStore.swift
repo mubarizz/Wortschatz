@@ -72,8 +72,7 @@ public final class VocabularyStore: ObservableObject {
             do {
                 let parsed = try CSVParser.shared.parse(fileURL: bundleURL)
                 if !parsed.isEmpty {
-                    self.words = parsed
-                    saveWordsToDisk()
+                    mergeWords(parsed)
                     self.isLoading = false
                     return
                 }
@@ -87,8 +86,7 @@ public final class VocabularyStore: ObservableObject {
         let fallbackURL = URL(fileURLWithPath: localPath)
         if FileManager.default.fileExists(atPath: fallbackURL.path) {
             if let parsed = try? CSVParser.shared.parse(fileURL: fallbackURL), !parsed.isEmpty {
-                self.words = parsed
-                saveWordsToDisk()
+                mergeWords(parsed)
                 self.isLoading = false
                 return
             }
@@ -96,6 +94,55 @@ public final class VocabularyStore: ObservableObject {
         
         // Embedded 34-word dataset fallback: 100% reliable in any Xcode simulator or test
         loadEmbeddedFallbackData()
+    }
+    
+    /// Merges incoming CSV words without losing custom added words or existing Elo/review progress
+    private func mergeWords(_ incoming: [VocabularyWord]) {
+        if self.words.isEmpty {
+            self.words = incoming
+        } else {
+            var existingKeys = Set(self.words.map { $0.cleanTargetWord.lowercased() })
+            for item in incoming {
+                let key = item.cleanTargetWord.lowercased()
+                if !existingKeys.contains(key) {
+                    self.words.append(item)
+                    existingKeys.insert(key)
+                }
+            }
+        }
+        saveWordsToDisk()
+    }
+    
+    // MARK: - Custom Word Addition & Editing
+    
+    public func hasWord(_ rawWord: String) -> Bool {
+        let cleaned = rawWord
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: #"^(der|die|das)\s+"#, with: "", options: [.regularExpression, .caseInsensitive])
+            .lowercased()
+        return words.contains { $0.cleanTargetWord.lowercased() == cleaned }
+    }
+    
+    @discardableResult
+    public func addWord(_ newWord: VocabularyWord) -> Bool {
+        guard !hasWord(newWord.cleanTargetWord) else {
+            return false
+        }
+        words.insert(newWord, at: 0)
+        saveWordsToDisk()
+        return true
+    }
+    
+    public func updateWord(_ updatedWord: VocabularyWord) {
+        if let idx = words.firstIndex(where: { $0.id == updatedWord.id }) {
+            words[idx] = updatedWord
+            saveWordsToDisk()
+        }
+    }
+    
+    public func deleteWord(id: UUID) {
+        words.removeAll { $0.id == id }
+        saveWordsToDisk()
     }
     
     public func loadFromCSVURL(_ url: URL) {
@@ -139,16 +186,16 @@ public final class VocabularyStore: ObservableObject {
         }
     }
     
-    // MARK: - Spaced Repetition & Elo Interaction
+    // MARK: - Spaced Repetition, Learn Score & Elo Interaction
     
     @discardableResult
-    public func recordAttempt(wordId: UUID, success: Bool) -> EloResult? {
+    public func recordAttempt(wordId: UUID, success: Bool, mode: LearningGameMode = .cloze) -> EloResult? {
         guard let index = words.firstIndex(where: { $0.id == wordId }) else {
             return nil
         }
         
         var word = words[index]
-        let result = EloEngine.calculateOutcome(userElo: userElo, word: word, success: success)
+        let result = EloEngine.calculateOutcome(userElo: userElo, word: word, success: success, mode: mode)
         
         // Update user
         self.userElo = result.newUserElo
@@ -156,8 +203,9 @@ public final class VocabularyStore: ObservableObject {
         self.lastStudyDate = Date()
         updateDailyStreak()
         
-        // Update word stats
+        // Update word stats & Learn Score (0–100%)
         word.elo = result.newWordElo
+        word.learnScore = result.newLearnScore
         word.reviewsCount += 1
         word.lastReviewedAt = Date()
         
@@ -177,7 +225,12 @@ public final class VocabularyStore: ObservableObject {
     
     // MARK: - Queue & Matching Selectors
     
-    /// Spaced Repetition queue sorted by dynamic urgency (Word Elo relative to User Elo + time elapsed)
+    /// Generates an 80% Unlearned (<75%) / 20% Learned (>=75%) session so learned words show up less without disappearing
+    public func generateSmartSession(count: Int = 10) -> [VocabularyWord] {
+        return EloEngine.buildSmartSession(from: words, count: count)
+    }
+    
+    /// Spaced Repetition queue sorted by dynamic urgency (unlearned & lowest Learn Score first)
     public var spacedRepetitionQueue: [VocabularyWord] {
         let now = Date()
         return words.sorted { w1, w2 in
@@ -185,6 +238,16 @@ public final class VocabularyStore: ObservableObject {
             let u2 = EloEngine.calculateUrgency(word: w2, userElo: userElo, now: now)
             return u1 > u2
         }
+    }
+    
+    /// Words that have reached >= 75% Learn Score ("Gelernt")
+    public var learnedWords: [VocabularyWord] {
+        words.filter { $0.isLearned }
+    }
+    
+    /// Words still below 75% Learn Score ("Zu lernen / Im Training")
+    public var unlearnedWords: [VocabularyWord] {
+        words.filter { !$0.isLearned }
     }
     
     /// Words that have unlocked B2-level testing
@@ -197,26 +260,28 @@ public final class VocabularyStore: ObservableObject {
         words.filter { !$0.isB2MasteryReached }
     }
     
-    // MARK: - User Rank / Tier
+    // MARK: - User Rank / Tier (1.000 ➔ 5.000 B2 Scale)
     public var userRankTitle: String {
         switch userElo {
-        case ..<1100: return "A2 / B1 Aufsteiger"
-        case 1100..<1250: return "B1 Lernender"
-        case 1250..<1400: return "B1+ Festiger"
-        case 1400..<1550: return "B2 Anwärter"
-        case 1550..<1700: return "B2 Meister"
+        case ..<1500: return "A2 / B1 Einsteiger"
+        case 1500..<2300: return "B1 Lernender"
+        case 2300..<3200: return "B1+ Festiger"
+        case 3200..<4200: return "B2 Anwärter"
+        case 4200..<5000: return "B2 Fortgeschritten"
+        case 5000..<6000: return "B2 Meister ✓"
         default: return "C1 Virtuose"
         }
     }
     
     public var userRankColor: Color {
         switch userElo {
-        case ..<1100: return .gray
-        case 1100..<1250: return .blue
-        case 1250..<1400: return .teal
-        case 1400..<1550: return .indigo
-        case 1550..<1700: return .purple
-        default: return .orange
+        case ..<1500: return Color(red: 0.14, green: 0.46, blue: 0.96)
+        case 1500..<2300: return .teal
+        case 2300..<3200: return .indigo
+        case 3200..<4200: return .purple
+        case 4200..<5000: return Color(red: 0.85, green: 0.32, blue: 0.55)
+        case 5000..<6000: return .orange
+        default: return .green
         }
     }
     
@@ -249,6 +314,7 @@ public final class VocabularyStore: ObservableObject {
         totalReviews = 0
         dailyStreak = 1
         lastStudyDate = nil
+        words = []
         try? FileManager.default.removeItem(at: wordsStorageURL)
         loadFromBundledCSV()
     }

@@ -15,10 +15,12 @@ public struct FlashcardView: View {
             cardBack
                 .opacity(isFlipped ? 1.0 : 0.0)
                 .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                .allowsHitTesting(isFlipped)
             
             cardFront
                 .opacity(isFlipped ? 0.0 : 1.0)
                 .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                .allowsHitTesting(!isFlipped)
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -59,7 +61,7 @@ public struct FlashcardView: View {
                 }
                 .buttonStyle(.plain)
                 
-                EloBadge(elo: word.elo, showLabel: false, compact: true)
+                LearnScoreBadge(word: word, showLabel: false, compact: true)
             }
             
             Spacer()
@@ -82,10 +84,10 @@ public struct FlashcardView: View {
             // Mastery / Level Badge
             HStack(spacing: 6) {
                 Circle()
-                    .fill(word.isB2MasteryReached ? Color.purple : (word.reviewsCount > 0 ? Color.blue : Color.gray))
+                    .fill(word.learnScoreColor)
                     .frame(width: 8, height: 8)
                 
-                Text(word.masteryLabel)
+                Text("\(word.masteryLabel) • \(word.learnScore)%")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.secondary)
             }
@@ -172,6 +174,18 @@ public struct FlashcardView: View {
                             .font(.system(size: 9, weight: .heavy))
                             .foregroundColor(.blue)
                         Spacer()
+                        Button(action: {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            AudioSpeaker.shared.speak(text: word.b1Example)
+                        }) {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.blue)
+                                .padding(4)
+                                .background(Color.blue.opacity(0.12))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
                     Text(word.b1Example)
                         .font(.system(size: 12, weight: .regular))
@@ -194,6 +208,18 @@ public struct FlashcardView: View {
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.green)
                         }
+                        Button(action: {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            AudioSpeaker.shared.speak(text: word.b2Example)
+                        }) {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.purple)
+                                .padding(4)
+                                .background(Color.purple.opacity(0.12))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
                     Text(word.b2Example)
                         .font(.system(size: 12, weight: .regular))

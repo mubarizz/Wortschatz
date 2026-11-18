@@ -46,12 +46,13 @@ public struct ClozeFeedbackSheet: View {
                     
                     if let result = eloResult {
                         HStack(spacing: 6) {
-                            Text(result.userDelta >= 0 ? "+\(Int(round(result.userDelta))) Elo" : "\(Int(round(result.userDelta))) Elo")
+                            let scoreDelta = result.learnScoreDelta
+                            Text(scoreDelta >= 0 ? "+\(scoreDelta)% Lern-Score" : "\(scoreDelta)% Lern-Score")
                                 .font(.system(size: 12, weight: .heavy, design: .rounded))
-                                .foregroundColor(result.userDelta >= 0 ? .green : .red)
+                                .foregroundColor(scoreDelta >= 0 ? .green : .red)
                             
-                            Text("• Dein Rating: \(Int(round(result.newUserElo)))")
-                                .font(.system(size: 11, weight: .medium))
+                            Text("• Stand: \(result.newLearnScore)% (\(result.newLearnScore >= 75 ? "Gelernt ✓" : "Training"))")
+                                .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.secondary)
                         }
                     }

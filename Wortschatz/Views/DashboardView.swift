@@ -6,6 +6,7 @@ public struct DashboardView: View {
     let onStartCloze: () -> Void
     let onStartReverseQuiz: () -> Void
     let onStartFlashcards: () -> Void
+    var onStartDictation: (() -> Void)? = nil
     
     @State private var selectedWordForDetail: VocabularyWord?
     
@@ -13,34 +14,43 @@ public struct DashboardView: View {
         store: VocabularyStore,
         onStartCloze: @escaping () -> Void,
         onStartReverseQuiz: @escaping () -> Void,
-        onStartFlashcards: @escaping () -> Void
+        onStartFlashcards: @escaping () -> Void,
+        onStartDictation: (() -> Void)? = nil
     ) {
         self.store = store
         self.onStartCloze = onStartCloze
         self.onStartReverseQuiz = onStartReverseQuiz
         self.onStartFlashcards = onStartFlashcards
+        self.onStartDictation = onStartDictation
     }
     
     public var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 12) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 14) {
                     
-                    // MARK: - 1. User Elo & Tier Banner (Compact for iPhone 13 mini)
-                    VStack(spacing: 8) {
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(store.userRankTitle)
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(store.userRankColor)
+                    // MARK: - 1. Hero Elo & Mastery Banner
+                    VStack(spacing: 12) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "crown.fill")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(store.userRankColor)
+                                    Text(store.userRankTitle.uppercased())
+                                        .font(.system(size: 11, weight: .heavy, design: .rounded))
+                                        .tracking(0.6)
+                                        .foregroundColor(store.userRankColor)
+                                }
                                 
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                HStack(alignment: .firstTextBaseline, spacing: 5) {
                                     Text("\(Int(round(store.userElo)))")
-                                        .font(.system(size: 32, weight: .black, design: .rounded))
+                                        .font(.system(size: 34, weight: .black, design: .rounded))
+                                        .monospacedDigit()
                                         .foregroundColor(.primary)
                                     
                                     Text("Elo")
-                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
                                         .foregroundColor(.secondary)
                                 }
                             }
@@ -48,268 +58,274 @@ public struct DashboardView: View {
                             Spacer()
                             
                             // Daily Streak & Reviews Pill
-                            HStack(spacing: 10) {
-                                VStack(spacing: 1) {
+                            HStack(spacing: 12) {
+                                VStack(spacing: 2) {
                                     HStack(spacing: 3) {
                                         Image(systemName: "flame.fill")
                                             .foregroundColor(.orange)
-                                            .font(.system(size: 13))
+                                            .font(.system(size: 13, weight: .bold))
                                         Text("\(store.dailyStreak)")
-                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                            .monospacedDigit()
                                     }
                                     Text("Tage")
-                                        .font(.system(size: 9, weight: .medium))
+                                        .font(.system(size: 10, weight: .semibold))
                                         .foregroundColor(.secondary)
                                 }
                                 
                                 Divider()
-                                    .frame(height: 24)
+                                    .frame(height: 26)
                                 
-                                VStack(spacing: 1) {
+                                VStack(spacing: 2) {
                                     Text("\(store.totalReviews)")
-                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                        .monospacedDigit()
                                     Text("Reviews")
-                                        .font(.system(size: 9, weight: .medium))
+                                        .font(.system(size: 10, weight: .semibold))
                                         .foregroundColor(.secondary)
                                 }
                             }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Color(UIColor.tertiarySystemBackground))
-                            .cornerRadius(10)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                            )
                         }
                         
-                        // Progress bar towards B2 Elo Goal (Target 1500)
-                        VStack(alignment: .leading, spacing: 4) {
+                        // Progress bar towards B2 Elo Goal (Target 5.000)
+                        VStack(alignment: .leading, spacing: 5) {
                             HStack {
-                                Text("Weg zum B2 Niveau (Ziel: 1500 Elo)")
-                                    .font(.system(size: 10, weight: .semibold))
+                                Text("Weg zum B2 Niveau (Ziel: 5.000 Elo)")
+                                    .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(.secondary)
                                 Spacer()
-                                let percent = min(100, max(0, Int((store.userElo - 1000.0) / (1500.0 - 1000.0) * 100.0)))
+                                let percent = min(100, max(0, Int((store.userElo - 1000.0) / (5000.0 - 1000.0) * 100.0)))
                                 Text("\(percent)%")
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                                    .monospacedDigit()
                                     .foregroundColor(.primary)
                             }
                             
                             GeometryReader { geo in
-                                let progress = min(1.0, max(0.0, (store.userElo - 1000.0) / 500.0))
+                                let progress = min(1.0, max(0.03, (store.userElo - 1000.0) / 4000.0))
                                 ZStack(alignment: .leading) {
                                     Capsule()
-                                        .fill(Color(UIColor.tertiarySystemFill))
-                                        .frame(height: 6)
+                                        .fill(Color.primary.opacity(0.08))
+                                        .frame(height: 7)
                                     Capsule()
                                         .fill(
                                             LinearGradient(
-                                                colors: [.blue, .purple],
+                                                colors: [Color(red: 0.18, green: 0.48, blue: 0.98), Color(red: 0.56, green: 0.26, blue: 0.96)],
                                                 startPoint: .leading,
                                                 endPoint: .trailing
                                             )
                                         )
-                                        .frame(width: geo.size.width * progress, height: 6)
+                                        .frame(width: geo.size.width * progress, height: 7)
+                                        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: progress)
                                 }
                             }
-                            .frame(height: 6)
+                            .frame(height: 7)
                         }
                     }
-                    .padding(14)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(14)
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.indigo.opacity(0.10),
+                                        Color.blue.opacity(0.04),
+                                        Color(UIColor.secondarySystemGroupedBackground)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(Color.indigo.opacity(0.18), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
                     
-                    // MARK: - 2. Quick Game Mode Launchers (Touch target >= 44pt)
-                    VStack(spacing: 8) {
-                        // Flashcards Launcher Button (Learn First)
-                        Button(action: onStartFlashcards) {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.orange.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-                                    Image(systemName: "rectangle.stack.fill")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.orange)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack {
-                                        Text("Karteikarten")
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(.primary)
-                                        
-                                        Text("Audio & 3D")
-                                            .font(.system(size: 9, weight: .heavy))
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 5)
-                                            .padding(.vertical, 2)
-                                            .background(Color.orange)
-                                            .cornerRadius(4)
-                                    }
-                                    Text("Neue Wörter verinnerlichen mit deutscher Aussprache")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.orange)
-                            }
-                            .padding(12)
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(12)
-                        }
-                        .buttonStyle(.plain)
+                    // MARK: - 2. Quick Game Mode Launchers
+                    VStack(spacing: 9) {
+                        DashboardModeRow(
+                            title: "Karteikarten",
+                            badge: "Audio & 3D",
+                            subtitle: "Neue Wörter mit Aussprache verinnerlichen",
+                            icon: "rectangle.stack.fill",
+                            color: Color(red: 0.94, green: 0.50, blue: 0.10),
+                            action: onStartFlashcards
+                        )
                         
-                        // Cloze Mode Launcher Button
-                        Button(action: onStartCloze) {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.blue.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-                                    Image(systemName: "character.cursor.ibeam")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.blue)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack {
-                                        Text("Lückentext-Arena")
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(.primary)
-                                        
-                                        Text("B1 ➔ B2")
-                                            .font(.system(size: 9, weight: .heavy))
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 5)
-                                            .padding(.vertical, 2)
-                                            .background(Color.blue)
-                                            .cornerRadius(4)
-                                    }
-                                    Text("Progressive Kontext-Lücken mit B1/B2 Sätzen")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(12)
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(12)
-                        }
-                        .buttonStyle(.plain)
+                        DashboardModeRow(
+                            title: "Lückentext-Arena",
+                            badge: "B1 ➔ B2",
+                            subtitle: "Progressive Kontext-Lücken aktiv schreiben",
+                            icon: "character.cursor.ibeam",
+                            color: Color(red: 0.14, green: 0.46, blue: 0.96),
+                            action: onStartCloze
+                        )
                         
-                        // Reverse-Engineering Quiz Launcher Button
-                        Button(action: onStartReverseQuiz) {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.purple.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-                                    Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.purple)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    HStack {
-                                        Text("Rückwärts-Quiz")
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(.primary)
-                                        
-                                        Text("100% Deutsch")
-                                            .font(.system(size: 9, weight: .heavy))
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 5)
-                                            .padding(.vertical, 2)
-                                            .background(Color.purple)
-                                            .cornerRadius(4)
-                                    }
-                                    Text("Wort anhand deutscher Definition deduzieren")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.purple)
-                            }
-                            .padding(12)
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(12)
+                        DashboardModeRow(
+                            title: "Rückwärts-Quiz",
+                            badge: "100% Deutsch",
+                            subtitle: "Wort anhand deutscher Definition ableiten",
+                            icon: "arrow.triangle.turn.up.right.diamond.fill",
+                            color: Color(red: 0.55, green: 0.27, blue: 0.93),
+                            action: onStartReverseQuiz
+                        )
+                        
+                        if let onStartDictation = onStartDictation {
+                            DashboardModeRow(
+                                title: "Hör-Diktat",
+                                badge: "Normal & 0.7x",
+                                subtitle: "Wort & Beispielsatz anhören und buchstabieren",
+                                icon: "headphones",
+                                color: Color(red: 0.06, green: 0.62, blue: 0.66),
+                                action: onStartDictation
+                            )
                         }
-                        .buttonStyle(.plain)
                     }
                     
                     // MARK: - 3. Spaced Repetition SRS Summary Chips
-                    HStack(spacing: 8) {
+                    HStack(spacing: 9) {
                         MetricCard(
-                            title: "Gesamtwortschatz",
+                            title: "Wortschatz",
                             value: "\(store.words.count)",
-                            systemImage: "book.fill",
-                            accentColor: .blue
+                            systemImage: "books.vertical.fill",
+                            accentColor: Color(red: 0.14, green: 0.46, blue: 0.96)
                         )
                         MetricCard(
-                            title: "B2 Freigeschaltet",
-                            value: "\(store.b2UnlockedWords.count)",
+                            title: "Zu lernen (<75%)",
+                            value: "\(store.unlearnedWords.count)",
+                            systemImage: "flame.circle.fill",
+                            accentColor: Color(red: 0.94, green: 0.50, blue: 0.10)
+                        )
+                        MetricCard(
+                            title: "Gelernt (≥75%)",
+                            value: "\(store.learnedWords.count)",
                             systemImage: "checkmark.seal.fill",
-                            accentColor: .indigo
-                        )
-                        MetricCard(
-                            title: "SRS Warteschlange",
-                            value: "\(min(store.words.count, 10))",
-                            systemImage: "clock.arrow.2.circlepath",
-                            accentColor: .orange
+                            accentColor: Color(red: 0.10, green: 0.66, blue: 0.44)
                         )
                     }
                     
                     // MARK: - 4. "Im Fokus" (Highest Urgency Words)
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text("Heute im Fokus (SRS Queue)")
-                                .font(.system(size: 13, weight: .bold))
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text("Heute im Fokus")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                             Spacer()
-                            Text("Höchste Priorität")
-                                .font(.system(size: 10, weight: .medium))
+                            Text("Niedrigster Lern-Score zuerst")
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.secondary)
                         }
+                        .padding(.horizontal, 2)
                         
                         let topQueue = Array(store.spacedRepetitionQueue.prefix(4))
-                        VStack(spacing: 1) {
+                        VStack(spacing: 0) {
                             ForEach(topQueue) { word in
                                 WordRowView(word: word) {
                                     selectedWordForDetail = word
                                 }
                                 if word.id != topQueue.last?.id {
                                     Divider()
-                                        .padding(.leading, 56)
+                                        .padding(.leading, 78)
                                 }
                             }
                         }
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .cornerRadius(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 3)
                     }
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
             }
+            .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
             .navigationTitle("Wortschatz Arena")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedWordForDetail) { word in
-                WordDetailSheet(word: word)
+                WordDetailSheet(word: word, store: store)
             }
         }
+    }
+}
+
+private struct DashboardModeRow: View {
+    let title: String
+    let badge: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(color.opacity(0.14))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: icon)
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundColor(color)
+                }
+                
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                        
+                        Text(badge)
+                            .font(.system(size: 9, weight: .heavy, design: .rounded))
+                            .foregroundColor(color)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(color.opacity(0.13))
+                            .cornerRadius(5)
+                    }
+                    Text(subtitle)
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                
+                Spacer(minLength: 4)
+                
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(color.opacity(0.85))
+            }
+            .padding(11)
+            .background(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
+        }
+        .buttonStyle(ScaleButtonStyle(scaleAmount: 0.97))
     }
 }
 
@@ -320,22 +336,33 @@ private struct MetricCard: View {
     let accentColor: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Image(systemName: systemImage)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(accentColor)
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Image(systemName: systemImage)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(accentColor)
+                Spacer()
+            }
             Text(value)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
+                .monospacedDigit()
                 .foregroundColor(.primary)
             Text(title)
-                .font(.system(size: 9, weight: .medium))
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(10)
+        .padding(11)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.025), radius: 5, y: 2)
     }
 }

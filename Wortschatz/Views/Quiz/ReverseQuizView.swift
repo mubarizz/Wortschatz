@@ -64,7 +64,7 @@ public struct ReverseQuizView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     if let q = currentQuestion {
-                        EloBadge(elo: q.targetWord.elo, showLabel: false, compact: true)
+                        LearnScoreBadge(word: q.targetWord, showLabel: false, compact: true)
                     }
                 }
             }
@@ -210,14 +210,17 @@ public struct ReverseQuizView: View {
             }
             .padding(.horizontal, 14)
             .frame(height: 52) // Safe iOS touch target >= 44pt
-            .background(buttonBackground(isSelected: isSelected, isCorrect: isCorrectTarget))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(buttonBorder(isSelected: isSelected, isCorrect: isCorrectTarget), lineWidth: isAnswerLocked && (isSelected || isCorrectTarget) ? 2 : 1)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(buttonBackground(isSelected: isSelected, isCorrect: isCorrectTarget))
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(buttonBorder(isSelected: isSelected, isCorrect: isCorrectTarget), lineWidth: isAnswerLocked && (isSelected || isCorrectTarget) ? 2 : 1)
+            )
+            .shadow(color: Color.black.opacity(0.025), radius: 4, y: 2)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ScaleButtonStyle(scaleAmount: 0.97))
         .disabled(isAnswerLocked)
     }
     
@@ -238,10 +241,15 @@ public struct ReverseQuizView: View {
                 
                 Spacer()
                 
-                if let delta = latestEloResult?.userDelta {
-                    Text(delta >= 0 ? "+\(Int(round(delta))) Elo" : "\(Int(round(delta))) Elo")
-                        .font(.system(size: 13, weight: .heavy, design: .rounded))
-                        .foregroundColor(delta >= 0 ? .green : .red)
+                if let result = latestEloResult {
+                    HStack(spacing: 5) {
+                        Text(result.learnScoreDelta >= 0 ? "+\(result.learnScoreDelta)%" : "\(result.learnScoreDelta)%")
+                            .font(.system(size: 13, weight: .heavy, design: .rounded))
+                            .foregroundColor(result.learnScoreDelta >= 0 ? .green : .red)
+                        Text("➔ \(result.newLearnScore)%")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(result.newLearnScore >= 75 ? .green : .secondary)
+                    }
                 }
             }
             
@@ -304,11 +312,12 @@ public struct ReverseQuizView: View {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
         }
         
-        // Record attempt in store Elo engine
-        latestEloResult = store.recordAttempt(wordId: question.targetWord.id, success: isCorrect)
+        // Record attempt in store Learn Score & Elo engine
+        latestEloResult = store.recordAttempt(wordId: question.targetWord.id, success: isCorrect, mode: .reverseQuiz)
     }
     
     private func advanceToNextQuestion() {
+        AudioSpeaker.shared.stop()
         selectedOptionIndex = nil
         isAnswerLocked = false
         latestEloResult = nil
@@ -321,9 +330,10 @@ public struct ReverseQuizView: View {
     }
     
     private func startNewSession() {
-        let queue = store.spacedRepetitionQueue
+        // Use 80% Unlearned (<75%) / 20% Learned (>=75%) smart session
+        let smartQueue = store.generateSmartSession(count: 10)
         self.questions = QuizEngine.generateSession(
-            queue: queue,
+            queue: smartQueue,
             allWords: store.words,
             count: 10
         )

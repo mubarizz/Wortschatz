@@ -13,6 +13,9 @@
 		248C23CC533E75D5D6AB0DF5 /* ClozeSentenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */; };
 		57669D24900EA929F26036D5 /* QuizEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1DE7DDE800AE2A3B24353D /* QuizEngine.swift */; };
 		D9792A512A6822D672C7CD46 /* AudioSpeaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2A1292502FC216E987B2C /* AudioSpeaker.swift */; };
+		E9792A512A6822D672C7CD47 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB2A1292502FC216E987B2D /* GeminiService.swift */; };
+		F9792A512A6822D672C7CD48 /* GeminiWordSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */; };
+		A9792A512A6822D672C7CD49 /* AudioDictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB2A1292502FC216E987B2F /* AudioDictationView.swift */; };
 		687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
 		1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1014FA971BE18F35D22A /* EloBadge.swift */; };
 		F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D944E6EDBC7754A6BF538530 /* WordRowView.swift */; };
@@ -43,6 +46,9 @@
 		A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClozeSentenceEngine.swift"; sourceTree = "<group>"; };
 		DC1DE7DDE800AE2A3B24353D /* QuizEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuizEngine.swift"; sourceTree = "<group>"; };
 		3AB2A1292502FC216E987B2C /* AudioSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSpeaker.swift"; sourceTree = "<group>"; };
+		4AB2A1292502FC216E987B2D /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiService.swift"; sourceTree = "<group>"; };
+		5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiWordSearchSheet.swift"; sourceTree = "<group>"; };
+		6AB2A1292502FC216E987B2F /* AudioDictationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioDictationView.swift"; sourceTree = "<group>"; };
 		3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyStore.swift"; sourceTree = "<group>"; };
 		17CB1014FA971BE18F35D22A /* EloBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloBadge.swift"; sourceTree = "<group>"; };
 		D944E6EDBC7754A6BF538530 /* WordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordRowView.swift"; sourceTree = "<group>"; };
@@ -122,6 +128,7 @@
 				A94DEBB1096ED327CD90E860 /* ClozeSentenceEngine.swift */,
 				DC1DE7DDE800AE2A3B24353D /* QuizEngine.swift */,
 				3AB2A1292502FC216E987B2C /* AudioSpeaker.swift */,
+				4AB2A1292502FC216E987B2D /* GeminiService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -145,9 +152,18 @@
 				3707041784CF04184FFE1641 /* Flashcards */,
 				82E7F3359ACBA395AF4E47AF /* Cloze */,
 				966EA2472C7A3B121887D939 /* Quiz */,
+				776EA2472C7A3B121887D940 /* Dictation */,
 				A12F749955CE4BACE9F7C1B8 /* Components */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		776EA2472C7A3B121887D940 /* Dictation */ = {
+			isa = PBXGroup;
+			children = (
+				6AB2A1292502FC216E987B2F /* AudioDictationView.swift */,
+			);
+			path = Dictation;
 			sourceTree = "<group>";
 		};
 		3707041784CF04184FFE1641 /* Flashcards */ = {
@@ -191,6 +207,7 @@
 				17CB1014FA971BE18F35D22A /* EloBadge.swift */,
 				D944E6EDBC7754A6BF538530 /* WordRowView.swift */,
 				7F57DD4DCA6ADF52F54C9F89 /* WordDetailSheet.swift */,
+				5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -237,6 +254,8 @@
 				TargetAttributes = {
 					1F464D087A5F461A2CB0709A = {
 						CreatedOnToolsVersion = 15.0;
+						DevelopmentTeam = TF5S3S6T2A;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -282,6 +301,9 @@
 				248C23CC533E75D5D6AB0DF5 /* ClozeSentenceEngine.swift in Sources */,
 				57669D24900EA929F26036D5 /* QuizEngine.swift in Sources */,
 				D9792A512A6822D672C7CD46 /* AudioSpeaker.swift in Sources */,
+				E9792A512A6822D672C7CD47 /* GeminiService.swift in Sources */,
+				F9792A512A6822D672C7CD48 /* GeminiWordSearchSheet.swift in Sources */,
+				A9792A512A6822D672C7CD49 /* AudioDictationView.swift in Sources */,
 				687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */,
 				1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */,
 				F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */,
@@ -372,6 +394,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = TF5S3S6T2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Wortschatz;
@@ -400,6 +423,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = TF5S3S6T2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Wortschatz;
