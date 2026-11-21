@@ -145,6 +145,15 @@ public final class VocabularyStore: ObservableObject {
         saveWordsToDisk()
     }
     
+    /// Awards Elo and records review activity from game modes (such as Preposition Sprint or Schreiben)
+    public func recordExternalGameActivity(points: Double, reviewsCount: Int) {
+        self.userElo = max(1000.0, self.userElo + points)
+        self.totalReviews += reviewsCount
+        self.lastStudyDate = Date()
+        updateDailyStreak()
+        saveWordsToDisk()
+    }
+    
     public func loadFromCSVURL(_ url: URL) {
         isLoading = true
         do {

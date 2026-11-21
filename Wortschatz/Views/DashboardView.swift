@@ -7,6 +7,7 @@ public struct DashboardView: View {
     let onStartReverseQuiz: () -> Void
     let onStartFlashcards: () -> Void
     var onStartDictation: (() -> Void)? = nil
+    var onStartPrepositionSprint: (() -> Void)? = nil
     
     @State private var selectedWordForDetail: VocabularyWord?
     
@@ -15,13 +16,15 @@ public struct DashboardView: View {
         onStartCloze: @escaping () -> Void,
         onStartReverseQuiz: @escaping () -> Void,
         onStartFlashcards: @escaping () -> Void,
-        onStartDictation: (() -> Void)? = nil
+        onStartDictation: (() -> Void)? = nil,
+        onStartPrepositionSprint: (() -> Void)? = nil
     ) {
         self.store = store
         self.onStartCloze = onStartCloze
         self.onStartReverseQuiz = onStartReverseQuiz
         self.onStartFlashcards = onStartFlashcards
         self.onStartDictation = onStartDictation
+        self.onStartPrepositionSprint = onStartPrepositionSprint
     }
     
     public var body: some View {
@@ -155,6 +158,17 @@ public struct DashboardView: View {
                     
                     // MARK: - 2. Quick Game Mode Launchers
                     VStack(spacing: 9) {
+                        if let onStartPrepositionSprint = onStartPrepositionSprint {
+                            DashboardModeRow(
+                                title: "Präpositionen-Sprint",
+                                badge: "B1–C1 Neu",
+                                subtitle: "Verben mit festen Präpositionen & Kasus trainieren",
+                                icon: "bolt.horizontal.fill",
+                                color: Color.orange,
+                                action: onStartPrepositionSprint
+                            )
+                        }
+                        
                         DashboardModeRow(
                             title: "Karteikarten",
                             badge: "Audio & 3D",

@@ -17,6 +17,7 @@ public struct GameHubView: View {
     let onSelectReverseQuiz: () -> Void
     let onSelectFlashcards: () -> Void
     var onSelectDictation: (() -> Void)? = nil
+    var onSelectPrepositionSprint: (() -> Void)? = nil
     
     @State private var selectedCategory: GameHubCategory? = nil
     @State private var grammarLevelFilter: String = "Alle"
@@ -37,7 +38,8 @@ public struct GameHubView: View {
         onSelectCloze: @escaping () -> Void,
         onSelectReverseQuiz: @escaping () -> Void,
         onSelectFlashcards: @escaping () -> Void,
-        onSelectDictation: (() -> Void)? = nil
+        onSelectDictation: (() -> Void)? = nil,
+        onSelectPrepositionSprint: (() -> Void)? = nil
     ) {
         self.store = store
         self.grammarStore = grammarStore
@@ -46,6 +48,7 @@ public struct GameHubView: View {
         self.onSelectReverseQuiz = onSelectReverseQuiz
         self.onSelectFlashcards = onSelectFlashcards
         self.onSelectDictation = onSelectDictation
+        self.onSelectPrepositionSprint = onSelectPrepositionSprint
     }
     
     public var body: some View {
@@ -128,13 +131,13 @@ public struct GameHubView: View {
             // Category Card 1: Wortschatz-Spiele
             GameCategoryCard(
                 title: "Wortschatz-Spiele",
-                subtitle: "Vokabeln, Kontext & Hörverständnis",
-                badge: "4 Spiele",
-                description: "Trainiere deinen B1–B2 Wortschatz mit 3D-Karteikarten, progressiven Lückentexten, Rückwärts-Definitionen und Audio-Diktat.",
+                subtitle: "Vokabeln, Kontext, Kasus & Hörverständnis",
+                badge: "5 Spiele",
+                description: "Trainiere deinen B1–C1 Wortschatz mit Präpositionen-Sprint, 3D-Karteikarten, progressiven Lückentexten, Rückwärts-Definitionen und Audio-Diktat.",
                 progressFraction: Double(store.learnedWords.count) / Double(max(1, store.words.count)),
                 progressText: "\(store.learnedWords.count) von \(store.words.count) Vokabeln gelernt",
                 secondaryStat: "\(store.b2UnlockedWords.count) B2 aktiv",
-                gameTags: ["Karteikarten", "Lückentext", "Rückwärts-Quiz", "Hör-Diktat"],
+                gameTags: ["Präpositionen-Sprint (B1–C1)", "Karteikarten", "Lückentext", "Rückwärts-Quiz", "Hör-Diktat"],
                 icon: "books.vertical.fill",
                 color: Color(red: 0.14, green: 0.46, blue: 0.96),
                 action: {
@@ -207,12 +210,27 @@ public struct GameHubView: View {
                 Text("Wortschatz-Spiele")
                     .font(.system(size: 20, weight: .black, design: .rounded))
                     .foregroundColor(.primary)
-                Text("4 Lernmodi • 80% Zu lernen / 20% Gelernt")
+                Text("5 Lernmodi • Verben mit Präpositionen, Kasus & Vokabular")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 4)
+            
+            if let onSelectPrepositionSprint = onSelectPrepositionSprint {
+                GameHubCard(
+                    title: "Präpositionen-Sprint",
+                    subtitle: "Verben mit festen Präpositionen & Kasus",
+                    badge: "B1–C1 Neu!",
+                    description: "Meistere 50+ unverzichtbare Verben mit festen Präpositionen (Dativ vs. Akkusativ) im rasanten 60s-Blitz oder im gezielten Schwachstellen-Training.",
+                    footerLabel: "+15 Pkt. • 60s Blitz & Multiplikator-Streak",
+                    footerIcon: "bolt.fill",
+                    icon: "bolt.horizontal.fill",
+                    color: Color.orange,
+                    buttonTitle: "Sprinten",
+                    action: onSelectPrepositionSprint
+                )
+            }
             
             GameHubCard(
                 title: "Karteikarten",
