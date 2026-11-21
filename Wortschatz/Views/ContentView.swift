@@ -12,6 +12,7 @@ public enum AppTab: Int, Hashable {
 public struct ContentView: View {
     @StateObject private var store = VocabularyStore()
     @StateObject private var grammarStore = GrammarStore()
+    @StateObject private var schreibenStore = SchreibenStore()
     @State private var selectedTab: AppTab = .dashboard
     
     @State private var showingClozeGame: Bool = false
@@ -37,6 +38,8 @@ public struct ContentView: View {
             
             GameHubView(
                 store: store,
+                grammarStore: grammarStore,
+                schreibenStore: schreibenStore,
                 onSelectCloze: { showingClozeGame = true },
                 onSelectReverseQuiz: { showingReverseQuiz = true },
                 onSelectFlashcards: { showingFlashcards = true },
@@ -49,7 +52,7 @@ public struct ContentView: View {
             
             GrammarHubView(grammarStore: grammarStore, vocabStore: store)
                 .tabItem {
-                    Label("Grammatik", systemImage: "rectangle.3.group.fill")
+                    Label("Lernen", systemImage: "graduationcap.fill")
                 }
                 .tag(AppTab.grammar)
             

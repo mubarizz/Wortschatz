@@ -112,7 +112,7 @@ public struct GrammarTopic: Identifiable, Codable, Equatable, Hashable {
     }
     
     public var isLearned: Bool {
-        learnScore >= 75
+        learnScore >= 75 && correctCount >= 12
     }
     
     public var masteryLabel: String {

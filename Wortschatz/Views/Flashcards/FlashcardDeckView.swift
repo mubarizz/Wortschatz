@@ -21,6 +21,7 @@ public struct FlashcardDeckView: View {
     @State private var isSessionComplete: Bool = false
     @State private var wordsMasteredInSession: Int = 0
     @State private var wordsToReviewAgain: [VocabularyWord] = []
+    @State private var startingUserElo: Double = 1200.0
     
     public init(store: VocabularyStore) {
         self.store = store
@@ -250,8 +251,9 @@ public struct FlashcardDeckView: View {
         isSessionComplete = false
         wordsMasteredInSession = 0
         wordsToReviewAgain = []
+        startingUserElo = store.userElo
     }
-    
+
     // MARK: - Deck Complete View
     private var deckCompleteView: some View {
         VStack(spacing: 20) {
@@ -275,6 +277,31 @@ public struct FlashcardDeckView: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.secondary)
             }
+            
+            // Elo Summary Tile
+            VStack(spacing: 6) {
+                let eloDelta = store.userElo - startingUserElo
+                HStack(spacing: 6) {
+                    Text("Neues Rating:")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.secondary)
+                    Text("\(Int(round(store.userElo))) Elo")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    Text(eloDelta >= 0 ? "(+\(Int(round(eloDelta))))" : "(\(Int(round(eloDelta))))")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(eloDelta >= 0 ? .green : .red)
+                }
+                
+                Text("Deine Spaced Repetition Queue wurde neu kalibriert.")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
+            .padding(.horizontal, 24)
             
             if !wordsToReviewAgain.isEmpty {
                 VStack(spacing: 4) {

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 public struct WordTileItem: Identifiable, Equatable {
     public let id = UUID()
@@ -19,6 +20,8 @@ public struct SatzbauGameView: View {
     @State private var currentIndex: Int = 0
     @State private var selectedTiles: [WordTileItem] = []
     @State private var availableTiles: [WordTileItem] = []
+    @State private var activeTileId: UUID? = nil
+    @State private var draggedTile: WordTileItem? = nil
     
     // Outcome State
     @State private var isSubmitted: Bool = false
@@ -259,28 +262,115 @@ public struct SatzbauGameView: View {
                                 Spacer()
                             }
                         } else {
-                            WrappingTileFlowLayout(spacing: 7, lineSpacing: 8) {
-                                ForEach(selectedTiles) { tile in
-                                    Button(action: {
-                                        guard !isSubmitted else { return }
-                                        deselectTile(tile)
-                                    }) {
-                                        Text(tile.text)
-                                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                                            .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 6) {
+                                WrappingTileFlowLayout(spacing: 7, lineSpacing: 8) {
+                                    ForEach(selectedTiles) { tile in
+                                        let isActive = (activeTileId == tile.id)
+                                        Button(action: {
+                                            handleSelectedTileTap(tile)
+                                        }) {
+                                            HStack(spacing: 4) {
+                                                Text(tile.text)
+                                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                                    .foregroundColor(.white)
+                                                if isActive && !isSubmitted {
+                                                    Image(systemName: "arrow.left.arrow.right")
+                                                        .font(.system(size: 10, weight: .heavy))
+                                                        .foregroundColor(.yellow)
+                                                }
+                                            }
                                             .padding(.horizontal, 11)
                                             .padding(.vertical, 7)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                    .fill(tileColorForSubmittedState())
+                                                    .fill(isActive ? Color(red: 0.18, green: 0.38, blue: 0.88) : tileColorForSubmittedState())
                                             )
-                                            .shadow(color: Color.black.opacity(0.08), radius: 3, y: 1)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                    .strokeBorder(isActive ? Color.yellow : Color.clear, lineWidth: isActive ? 2 : 0)
+                                            )
+                                            .shadow(color: Color.black.opacity(isActive ? 0.25 : 0.08), radius: isActive ? 6 : 3, y: 1)
+                                            .scaleEffect(isActive ? 1.05 : 1.0)
+                                        }
+                                        .buttonStyle(ScaleButtonStyle(scaleAmount: 0.94))
+                                        .disabled(isSubmitted)
+                                        .opacity(draggedTile?.id == tile.id ? 0.35 : 1.0)
+                                        .onDrag {
+                                            guard !isSubmitted else { return NSItemProvider() }
+                                            self.draggedTile = tile
+                                            self.activeTileId = tile.id
+                                            return NSItemProvider(object: tile.id.uuidString as NSString)
+                                        }
+                                        .onDrop(of: [UTType.text], delegate: TileDropDelegate(item: tile, list: $selectedTiles, draggedItem: $draggedTile))
                                     }
-                                    .buttonStyle(ScaleButtonStyle(scaleAmount: 0.94))
-                                    .disabled(isSubmitted)
+                                }
+                                .padding(.vertical, 4)
+                                
+                                // Position Adjust Bar (Nudge Left / Right / Remove Single Word)
+                                if let activeId = activeTileId,
+                                   let activeIndex = selectedTiles.firstIndex(where: { $0.id == activeId }),
+                                   !isSubmitted {
+                                    HStack(spacing: 8) {
+                                        Text("„\(selectedTiles[activeIndex].text)“:")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(.yellow)
+                                            .lineLimit(1)
+                                        
+                                        Button(action: { nudgeActiveTile(direction: -1) }) {
+                                            HStack(spacing: 3) {
+                                                Image(systemName: "arrow.left")
+                                                Text("Links")
+                                            }
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(activeIndex > 0 ? .primary : .secondary.opacity(0.35))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color(UIColor.tertiarySystemGroupedBackground))
+                                            .cornerRadius(6)
+                                        }
+                                        .buttonStyle(.plain)
+                                        .disabled(activeIndex == 0)
+                                        
+                                        Button(action: { nudgeActiveTile(direction: 1) }) {
+                                            HStack(spacing: 3) {
+                                                Text("Rechts")
+                                                Image(systemName: "arrow.right")
+                                            }
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(activeIndex < selectedTiles.count - 1 ? .primary : .secondary.opacity(0.35))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color(UIColor.tertiarySystemGroupedBackground))
+                                            .cornerRadius(6)
+                                        }
+                                        .buttonStyle(.plain)
+                                        .disabled(activeIndex >= selectedTiles.count - 1)
+                                        
+                                        Spacer()
+                                        
+                                        Button(action: removeActiveTile) {
+                                            HStack(spacing: 2) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                Text("Entfernen")
+                                            }
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(.red)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.red.opacity(0.12))
+                                            .cornerRadius(6)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(.horizontal, 4)
+                                    .padding(.top, 2)
+                                } else if !isSubmitted {
+                                    Text("Tippen zum Tauschen • Ziehen zum Verschieben")
+                                        .font(.system(size: 10, weight: .medium))
+                                        .foregroundColor(.secondary.opacity(0.8))
+                                        .padding(.top, 2)
                                 }
                             }
-                            .padding(.vertical, 4)
                         }
                     }
                     .padding(13)
@@ -341,12 +431,15 @@ public struct SatzbauGameView: View {
                     Divider()
                     HStack(spacing: 10) {
                         Button(action: {
-                            guard let last = selectedTiles.last else { return }
-                            deselectTile(last)
+                            if activeTileId != nil {
+                                removeActiveTile()
+                            } else if let last = selectedTiles.last {
+                                deselectTile(last)
+                            }
                         }) {
-                            Image(systemName: "delete.left.fill")
+                            Image(systemName: activeTileId != nil ? "xmark.square.fill" : "delete.left.fill")
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(selectedTiles.isEmpty ? .secondary.opacity(0.4) : .primary)
+                                .foregroundColor(selectedTiles.isEmpty ? .secondary.opacity(0.4) : (activeTileId != nil ? .red : .primary))
                                 .frame(width: 50, height: 48)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -487,14 +580,64 @@ public struct SatzbauGameView: View {
         )
     }
     
-    // MARK: - Tile Selection & Validation Logic
+    // MARK: - Tile Selection & Reordering Logic
     private func selectTile(_ tile: WordTileItem) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         withAnimation(.spring(response: 0.26, dampingFraction: 0.78)) {
             if let idx = availableTiles.firstIndex(of: tile) {
                 let removed = availableTiles.remove(at: idx)
-                selectedTiles.append(removed)
+                if let activeId = activeTileId,
+                   let insertIdx = selectedTiles.firstIndex(where: { $0.id == activeId }) {
+                    selectedTiles.insert(removed, at: insertIdx + 1)
+                    activeTileId = removed.id
+                } else {
+                    selectedTiles.append(removed)
+                }
             }
+        }
+    }
+    
+    private func handleSelectedTileTap(_ tile: WordTileItem) {
+        guard !isSubmitted else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+            if let currentActive = activeTileId {
+                if currentActive == tile.id {
+                    // Tapped the same tile: unselect
+                    activeTileId = nil
+                } else {
+                    // Tapped a different tile: SWAP positions!
+                    if let idx1 = selectedTiles.firstIndex(where: { $0.id == currentActive }),
+                       let idx2 = selectedTiles.firstIndex(where: { $0.id == tile.id }) {
+                        selectedTiles.swapAt(idx1, idx2)
+                        activeTileId = tile.id
+                    }
+                }
+            } else {
+                activeTileId = tile.id
+            }
+        }
+    }
+    
+    private func nudgeActiveTile(direction: Int) {
+        guard let activeId = activeTileId,
+              let currentIdx = selectedTiles.firstIndex(where: { $0.id == activeId }) else { return }
+        let targetIdx = currentIdx + direction
+        guard targetIdx >= 0 && targetIdx < selectedTiles.count else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+            selectedTiles.swapAt(currentIdx, targetIdx)
+        }
+    }
+    
+    private func removeActiveTile() {
+        guard let activeId = activeTileId,
+              let idx = selectedTiles.firstIndex(where: { $0.id == activeId }) else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.spring(response: 0.26, dampingFraction: 0.78)) {
+            let removed = selectedTiles.remove(at: idx)
+            availableTiles.append(removed)
+            activeTileId = nil
         }
     }
     
@@ -504,6 +647,9 @@ public struct SatzbauGameView: View {
             if let idx = selectedTiles.firstIndex(of: tile) {
                 let removed = selectedTiles.remove(at: idx)
                 availableTiles.append(removed)
+                if activeTileId == tile.id {
+                    activeTileId = nil
+                }
             }
         }
     }
@@ -513,6 +659,8 @@ public struct SatzbauGameView: View {
         withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
             availableTiles.append(contentsOf: selectedTiles)
             selectedTiles.removeAll()
+            activeTileId = nil
+            draggedTile = nil
         }
     }
     
@@ -526,6 +674,8 @@ public struct SatzbauGameView: View {
         }
         selectedTiles = []
         availableTiles = shuffled
+        activeTileId = nil
+        draggedTile = nil
         isSubmitted = false
         isCorrect = false
         latestResult = nil
@@ -682,6 +832,40 @@ public struct SatzbauGameView: View {
                 .font(.system(size: 16, weight: .bold))
             Button("Neu laden", action: startNewSession)
         }
+    }
+}
+
+// MARK: - DropDelegate for Touch-and-Drag Reordering
+public struct TileDropDelegate: DropDelegate {
+    let item: WordTileItem
+    @Binding var list: [WordTileItem]
+    @Binding var draggedItem: WordTileItem?
+    
+    public init(item: WordTileItem, list: Binding<[WordTileItem]>, draggedItem: Binding<WordTileItem?>) {
+        self.item = item
+        self._list = list
+        self._draggedItem = draggedItem
+    }
+    
+    public func dropEntered(info: DropInfo) {
+        guard let currentDragged = draggedItem,
+              currentDragged != item,
+              let fromIndex = list.firstIndex(of: currentDragged),
+              let toIndex = list.firstIndex(of: item) else { return }
+        
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+            list.move(fromOffsets: IndexSet(integer: fromIndex), toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+    
+    public func performDrop(info: DropInfo) -> Bool {
+        draggedItem = nil
+        return true
+    }
+    
+    public func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
     }
 }
 

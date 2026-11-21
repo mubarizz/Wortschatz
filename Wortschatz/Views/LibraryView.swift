@@ -14,6 +14,11 @@ public enum LibrarySortOrder: String, CaseIterable {
     case recentlyReviewed = "Zuletzt geübt"
 }
 
+private struct GeminiSearchSheetRequest: Identifiable {
+    let id = UUID()
+    let query: String
+}
+
 public struct LibraryView: View {
     @ObservedObject var store: VocabularyStore
     @State private var searchText: String = ""
@@ -21,8 +26,7 @@ public struct LibraryView: View {
     @State private var sortOrder: LibrarySortOrder = .lowestScoreFirst
     @State private var selectedFilter: String = "Alle"
     @State private var selectedWordForDetail: VocabularyWord?
-    @State private var showingGeminiSearch: Bool = false
-    @State private var geminiInitialQuery: String = ""
+    @State private var geminiSearchRequest: GeminiSearchSheetRequest? = nil
     
     let filterOptions = ["Alle", "der", "die", "das", "Verb", "Adjektiv", "B2"]
     
@@ -30,7 +34,12 @@ public struct LibraryView: View {
         self.store = store
     }
     
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
     private var filteredWords: [VocabularyWord] {
+        let query = trimmedSearchText
         let filtered = store.words.filter { word in
             // 1. Mastery segment filter
             switch masteryFilter {
@@ -42,11 +51,13 @@ public struct LibraryView: View {
                 if !word.isLearned { return false }
             }
             
-            // 2. Search text filter
-            let matchesSearch = searchText.isEmpty ||
-                word.word.localizedCaseInsensitiveContains(searchText) ||
-                word.englishDefinition.localizedCaseInsensitiveContains(searchText) ||
-                word.germanDefinition.localizedCaseInsensitiveContains(searchText)
+            // 2. Search text filter (handles articles, trailing keyboard spaces, and diacritics)
+            let matchesSearch = query.isEmpty ||
+                word.word.localizedStandardContains(query) ||
+                word.displayTitle.localizedStandardContains(query) ||
+                word.cleanTargetWord.localizedStandardContains(query) ||
+                word.englishDefinition.localizedStandardContains(query) ||
+                word.germanDefinition.localizedStandardContains(query)
             
             if !matchesSearch { return false }
             
@@ -173,10 +184,9 @@ public struct LibraryView: View {
                 
                 // Words List
                 List {
-                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if !trimmedSearchText.isEmpty {
                         Button(action: {
-                            geminiInitialQuery = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-                            showingGeminiSearch = true
+                            geminiSearchRequest = GeminiSearchSheetRequest(query: trimmedSearchText)
                         }) {
                             HStack(spacing: 10) {
                                 ZStack {
@@ -189,7 +199,7 @@ public struct LibraryView: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("„\(searchText)“ mit Gemini AI suchen")
+                                    Text("„\(trimmedSearchText)“ mit Gemini AI suchen")
                                         .font(.system(size: 14, weight: .bold))
                                         .foregroundColor(.indigo)
                                     Text("3 verwandte Vorschläge (A1–C2) generieren & hinzufügen")
@@ -229,8 +239,7 @@ public struct LibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        geminiInitialQuery = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-                        showingGeminiSearch = true
+                        geminiSearchRequest = GeminiSearchSheetRequest(query: trimmedSearchText)
                     }) {
                         HStack(spacing: 4) {
                             Image(systemName: "sparkles")
@@ -246,11 +255,16 @@ public struct LibraryView: View {
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Wort suchen oder mit AI neu anlegen...")
+            .onSubmit(of: .search) {
+                if filteredWords.isEmpty && !trimmedSearchText.isEmpty {
+                    geminiSearchRequest = GeminiSearchSheetRequest(query: trimmedSearchText)
+                }
+            }
             .sheet(item: $selectedWordForDetail) { word in
                 WordDetailSheet(word: word, store: store)
             }
-            .sheet(isPresented: $showingGeminiSearch) {
-                GeminiWordSearchSheet(store: store, initialQuery: geminiInitialQuery)
+            .sheet(item: $geminiSearchRequest) { request in
+                GeminiWordSearchSheet(store: store, initialQuery: request.query)
             }
         }
     }

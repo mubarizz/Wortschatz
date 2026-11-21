@@ -95,8 +95,9 @@ public final class GrammarStore: ObservableObject {
         
         let prevScore = topic.learnScore
         let wasAlreadyLearned = topic.isLearned
-        let streakBonus = (success && topic.consecutiveCorrect >= 1) ? 5 : 0
-        let rawDelta = success ? (25 + streakBonus) : -15
+        // Calibrated pacing: takes 2-3 full quizzes (16-24 exercises) with high accuracy to reach "Gelernt"
+        let streakBonus = (success && topic.consecutiveCorrect >= 1) ? 2 : 0
+        let rawDelta = success ? (5 + streakBonus) : -6
         
         let updatedScore = min(100, max(0, prevScore + rawDelta))
         let actualDelta = updatedScore - prevScore

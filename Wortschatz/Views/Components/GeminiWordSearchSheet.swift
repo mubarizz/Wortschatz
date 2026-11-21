@@ -6,6 +6,7 @@ public struct GeminiWordSearchSheet: View {
     @ObservedObject private var gemini = GeminiService.shared
     @Environment(\.dismiss) private var dismiss
     
+    private let initialQuery: String
     @State private var query: String
     @State private var candidates: [GeminiWordCandidate] = []
     @State private var isLoading: Bool = false
@@ -16,6 +17,7 @@ public struct GeminiWordSearchSheet: View {
     
     public init(store: VocabularyStore, initialQuery: String = "") {
         self.store = store
+        self.initialQuery = initialQuery
         self._query = State(initialValue: initialQuery)
     }
     
@@ -83,6 +85,9 @@ public struct GeminiWordSearchSheet: View {
             }
             .onAppear {
                 apiKeyInput = gemini.apiKey
+                if !initialQuery.isEmpty && (query.isEmpty || query != initialQuery) {
+                    query = initialQuery
+                }
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmed.isEmpty && gemini.hasValidKey && candidates.isEmpty {
                     triggerSearch()

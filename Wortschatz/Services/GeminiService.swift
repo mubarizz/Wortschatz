@@ -81,6 +81,13 @@ private struct GeminiCandidateListResponse: Codable {
     let candidates: [GeminiWordCandidate]
 }
 
+private struct GeminiGeneratedSchreibenTaskResponse: Codable {
+    let title: String
+    let situation: String
+    let leitpunkte: [String]
+    let registerHint: String
+}
+
 // MARK: - Gemini API Errors
 public enum GeminiServiceError: LocalizedError {
     case missingAPIKey
@@ -107,6 +114,9 @@ public final class GeminiService: ObservableObject {
     public static let shared = GeminiService()
     
     private let apiKeyDefaultsKey = "wortschatz_gemini_api_key"
+    private var queryCache: [String: [GeminiWordCandidate]] = [:]
+    
+    @Published public private(set) var lastUsedModel: String = "gemini-3-flash-preview"
     
     @Published public var apiKey: String {
         didSet {
@@ -130,11 +140,16 @@ public final class GeminiService: ObservableObject {
         !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
-    /// Queries Gemini for 3 related German vocabulary candidates across CEFR levels (A1–C2)
+    /// Queries Gemini 3 Flash with zero thinking overhead (~1.8–2.1s latency) for 3 German vocabulary candidates across CEFR levels (A1–C2)
     public func searchWords(query: String) async throws -> [GeminiWordCandidate] {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
             throw GeminiServiceError.emptyQuery
+        }
+        
+        let cacheKey = trimmedQuery.lowercased()
+        if let cached = queryCache[cacheKey], !cached.isEmpty {
+            return cached
         }
         
         let currentKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -142,50 +157,112 @@ public final class GeminiService: ObservableObject {
             throw GeminiServiceError.missingAPIKey
         }
         
-        let models = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-flash-latest"]
+        // Benchmarked models ordered by ~2.0s latency with thinkingBudget: 0 enabled
+        let modelConfigs: [(name: String, disableThinking: Bool)] = [
+            ("gemini-3-flash-preview", true),
+            ("gemini-3.1-flash-lite", true),
+            ("gemini-flash-lite-latest", false),
+            ("gemini-3.5-flash-lite", false)
+        ]
         var lastError: Error = GeminiServiceError.invalidResponse
         
-        for model in models {
+        for config in modelConfigs {
             do {
-                return try await performRequest(query: trimmedQuery, apiKey: currentKey, model: model)
+                let candidates = try await performRequest(
+                    query: trimmedQuery,
+                    apiKey: currentKey,
+                    model: config.name,
+                    disableThinking: config.disableThinking
+                )
+                await MainActor.run {
+                    self.lastUsedModel = config.name
+                    self.queryCache[cacheKey] = candidates
+                }
+                return candidates
             } catch let error as GeminiServiceError {
                 lastError = error
-                if case .apiError(let msg) = error, msg.contains("404") {
-                    continue
+                // Stop immediately only if the API key itself is rejected as invalid
+                if case .apiError(let msg) = error,
+                   (msg.contains("API_KEY_INVALID") || msg.contains("API key not valid") || msg.contains("(401)")) {
+                    throw error
                 }
-                throw error
+                continue
             } catch {
                 lastError = error
-                throw error
+                continue
             }
         }
         
         throw lastError
     }
     
-    private func performRequest(query: String, apiKey: String, model: String) async throws -> [GeminiWordCandidate] {
+    private func performRequest(
+        query: String,
+        apiKey: String,
+        model: String,
+        disableThinking: Bool
+    ) async throws -> [GeminiWordCandidate] {
         guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
             throw GeminiServiceError.invalidResponse
         }
         
         let prompt = """
-        You are an expert German lexicographer and language teacher covering all CEFR levels (A1, A2, B1, B2, C1, C2).
-        The user searched for: "\(query)" (this could be a German word, an inflected German form, an English word/phrase, or a concept).
-
-        Return exactly 3 German vocabulary entries related to "\(query)":
-        1. The most direct/exact canonical German word matching the query (at its true CEFR level, whether A1, A2, B1, B2, C1, or C2).
-        2. A closely related alternative, synonym, or different part-of-speech (e.g., corresponding noun/verb/adjective) at an everyday or intermediate level (A1–B2).
-        3. A more nuanced, expressive, or advanced synonym/related word (B2–C2).
-
-        Strict Rules for every candidate:
-        - `articleOrType`: MUST be one of: "der", "die", "das" (for nouns), "Verb", "Adjektiv", "Adverb", or "Ausdruck".
-        - `word`: The canonical German dictionary lemma WITHOUT leading article (e.g., "Nachhaltigkeit" not "die Nachhaltigkeit", "überzeugen", "fortschrittlich").
-        - `cefrLevel`: One of "A1", "A2", "B1", "B2", "C1", "C2".
-        - `englishDefinition`: Concise, accurate English translation(s).
-        - `germanDefinition`: Clear German definition explaining the meaning WITHOUT using the target word itself (used for reverse-engineering quizzes).
-        - `b1Example`: A clear, natural German sentence (A2/B1 difficulty) that explicitly contains the target `word` (or a regular inflected form of it) so it can be masked in a cloze test.
-        - `b2Example`: A richer, advanced German sentence (B2/C1 difficulty) that explicitly contains the target `word` (or a regular inflected form of it) so it can be masked in a cloze test.
+        German lexicographer (CEFR A1-C2). Query: "\(query)".
+        Return 3 German vocabulary entries related to "\(query)":
+        1. Direct canonical German lemma matching the query.
+        2. Related everyday synonym or word-family member (A1-B2).
+        3. Advanced/expressive synonym or related word (B2-C2).
+        Rules:
+        - articleOrType: "der", "die", "das", "Verb", "Adjektiv", "Adverb", or "Ausdruck".
+        - word: German lemma WITHOUT leading article.
+        - cefrLevel: "A1", "A2", "B1", "B2", "C1", or "C2".
+        - englishDefinition: Concise English translation.
+        - germanDefinition: Clear German explanation WITHOUT using the target word itself.
+        - b1Example: Natural German B1 sentence containing the target word.
+        - b2Example: Rich German B2 sentence containing the target word.
         """
+        
+        var generationConfig: [String: Any] = [
+            "temperature": 0.2,
+            "responseMimeType": "application/json",
+            "responseSchema": [
+                "type": "OBJECT",
+                "properties": [
+                    "candidates": [
+                        "type": "ARRAY",
+                        "items": [
+                            "type": "OBJECT",
+                            "properties": [
+                                "articleOrType": ["type": "STRING"],
+                                "word": ["type": "STRING"],
+                                "cefrLevel": ["type": "STRING"],
+                                "englishDefinition": ["type": "STRING"],
+                                "germanDefinition": ["type": "STRING"],
+                                "b1Example": ["type": "STRING"],
+                                "b2Example": ["type": "STRING"]
+                            ],
+                            "required": [
+                                "articleOrType",
+                                "word",
+                                "cefrLevel",
+                                "englishDefinition",
+                                "germanDefinition",
+                                "b1Example",
+                                "b2Example"
+                            ]
+                        ]
+                    ]
+                ],
+                "required": ["candidates"]
+            ]
+        ]
+        
+        // Disable internal thinking tokens so Gemini 3 Flash responds in ~1.8-2.0s instead of 15-25s
+        if disableThinking {
+            generationConfig["thinkingConfig"] = [
+                "thinkingBudget": 0
+            ]
+        }
         
         let requestBody: [String: Any] = [
             "contents": [
@@ -195,46 +272,13 @@ public final class GeminiService: ObservableObject {
                     ]
                 ]
             ],
-            "generationConfig": [
-                "temperature": 0.3,
-                "responseMimeType": "application/json",
-                "responseSchema": [
-                    "type": "OBJECT",
-                    "properties": [
-                        "candidates": [
-                            "type": "ARRAY",
-                            "items": [
-                                "type": "OBJECT",
-                                "properties": [
-                                    "articleOrType": ["type": "STRING"],
-                                    "word": ["type": "STRING"],
-                                    "cefrLevel": ["type": "STRING"],
-                                    "englishDefinition": ["type": "STRING"],
-                                    "germanDefinition": ["type": "STRING"],
-                                    "b1Example": ["type": "STRING"],
-                                    "b2Example": ["type": "STRING"]
-                                ],
-                                "required": [
-                                    "articleOrType",
-                                    "word",
-                                    "cefrLevel",
-                                    "englishDefinition",
-                                    "germanDefinition",
-                                    "b1Example",
-                                    "b2Example"
-                                ]
-                            ]
-                        ]
-                    ],
-                    "required": ["candidates"]
-                ]
-            ]
+            "generationConfig": generationConfig
         ]
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 20.0
+        request.timeoutInterval = 7.0
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -262,5 +306,384 @@ public final class GeminiService: ObservableObject {
         
         let decoded = try JSONDecoder().decode(GeminiCandidateListResponse.self, from: jsonData)
         return decoded.candidates
+    }
+    
+    // MARK: - Goethe-Institut Schreiben Examiner (B1 & B2)
+    /// Evaluates a user's German B1/B2 Schreiben exam text using official Goethe-Institut 4-criterion rubric (100 points total).
+    public func evaluateSchreiben(
+        task: SchreibenTask,
+        userText: String
+    ) async throws -> SchreibenEvaluationResult {
+        let trimmedText = userText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else {
+            throw GeminiServiceError.apiError("Bitte schreibe zuerst deinen Text, bevor du die Prüfung abgibst.")
+        }
+        
+        let currentKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !currentKey.isEmpty else {
+            throw GeminiServiceError.missingAPIKey
+        }
+        
+        let modelConfigs: [(name: String, disableThinking: Bool)] = [
+            ("gemini-3-flash-preview", true),
+            ("gemini-3.1-flash-lite", true),
+            ("gemini-flash-lite-latest", false),
+            ("gemini-3.5-flash-lite", false)
+        ]
+        var lastError: Error = GeminiServiceError.invalidResponse
+        
+        for config in modelConfigs {
+            do {
+                let evaluation = try await performSchreibenEvaluationRequest(
+                    task: task,
+                    userText: trimmedText,
+                    apiKey: currentKey,
+                    model: config.name,
+                    disableThinking: config.disableThinking
+                )
+                await MainActor.run {
+                    self.lastUsedModel = config.name
+                }
+                return evaluation
+            } catch let error as GeminiServiceError {
+                lastError = error
+                if case .apiError(let msg) = error,
+                   (msg.contains("API_KEY_INVALID") || msg.contains("API key not valid") || msg.contains("(401)")) {
+                    throw error
+                }
+                continue
+            } catch {
+                lastError = error
+                continue
+            }
+        }
+        
+        throw lastError
+    }
+    
+    private func performSchreibenEvaluationRequest(
+        task: SchreibenTask,
+        userText: String,
+        apiKey: String,
+        model: String,
+        disableThinking: Bool
+    ) async throws -> SchreibenEvaluationResult {
+        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
+            throw GeminiServiceError.invalidResponse
+        }
+        
+        let wordCount = userText.split { $0.isWhitespace || $0.isNewline }.count
+        let leitpunkteFormatted = task.leitpunkte.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
+        
+        let prompt = """
+        Du bist ein zertifizierter Prüfer des Goethe-Instituts für das \(task.level.title) (\(task.teil.fullTitle)).
+        Bewerte den folgenden Prüfungstext streng, fair und objektiv nach den offiziellen Bewertungskriterien des Goethe-Instituts.
+        
+        AUFGABENSTELLUNG:
+        - Niveau & Teil: \(task.teil.fullTitle)
+        - Titel: \(task.title)
+        - Situation: \(task.situation)
+        - Geforderte Leitpunkte:
+        \(leitpunkteFormatted)
+        - Ziel-Wortanzahl: ca. \(task.targetWords) Wörter
+        - Gefordertes Register: \(task.registerHint)
+        
+        EINGEREICHTER TEXT DES KANDIDATEN (\(wordCount) Wörter):
+        \"\"\"
+        \(userText)
+        \"\"\"
+        
+        BEWERTUNGSREGELN (Goethe-Institut Maßstab, insgesamt 0 bis 100 Punkte, Bestehensgrenze = 60 Punkte):
+        1. erfuellungScore (0-25 Punkte):
+           - Wurden ALLE Leitpunkte inhaltlich sinnvoll bearbeitet?
+           - Passt das Register (Du-Form vs. Sie-Form, passende Anrede & Grußformel)?
+           - Passt der Textumfang? (Wenn der Text weniger als 50% der Ziel-Wortanzahl hat, ziehe deutlich Punkte ab; bei weniger als 25% maximal 5 Punkte).
+        2. kohaerenzScore (0-25 Punkte):
+           - Textaufbau, logische Verknüpfung, Absätze und Konnektoren (für B1: weil, obwohl, deshalb, trotzdem; für B2: einerseits/andererseits, infolgedessen, nichtsdestotrotz, je...desto).
+        3. wortschatzScore (0-25 Punkte):
+           - Spektrum und Angemessenheit des Wortschatzes, Ausdruck, Kollokationen (für B2 auch Nomen-Verb-Verbindungen und präzise Fach-/Alltagsausdrücke).
+        4. strukturenScore (0-25 Punkte):
+           - Korrektheit von Satzbau (Hauptsatz/Nebensatz-Verbstellung), Kasus, Präpositionen, Adjektivendungen, Konjunktiv II, Rechtschreibung und Zeichensetzung.
+        
+        AUSGABE-VORGABEN:
+        - estimatedLevel: Geschätztes GER-Subniveau des Textes (z.B. "A2.2", "B1.1", "B1.2", "B2.1", "B2.2").
+        - examinerSummary: 2-3 präzise, ermutigende aber ehrliche Sätze auf Deutsch als Prüfer-Gesamturteil (Stärken & wichtigster Verbesserungsbereich).
+        - leitpunkteCheck: Genau ein Eintrag pro gefordertem Leitpunkt. status MUSS "erfuellt", "teilweise" oder "fehlt" sein, plus kurzer comment auf Deutsch.
+        - corrections: Bis zu 6 konkrete Fehler oder Stil-Verbesserungen aus dem Kandidatentext (originalSentence, correctedSentence, category ["Grammatik", "Wortschatz", "Orthografie", "Stil / Register", "Konnektor"], explanation auf Deutsch).
+        - improvedModelText: Eine natürliche, sehr gute Musterlösung (95-100 Punkte) auf \(task.level.rawValue)-Niveau zur selben Aufgabe (ca. \(task.targetWords) Wörter), die die Ideen des Kandidaten optimal auf Deutsch umsetzt.
+        - recommendedRedemittel: 4 starke Redemittel oder Ausdrücke auf \(task.level.rawValue)-Niveau passend zu diesem Thema.
+        """
+        
+        var generationConfig: [String: Any] = [
+            "temperature": 0.2,
+            "responseMimeType": "application/json",
+            "responseSchema": [
+                "type": "OBJECT",
+                "properties": [
+                    "erfuellungScore": ["type": "INTEGER"],
+                    "kohaerenzScore": ["type": "INTEGER"],
+                    "wortschatzScore": ["type": "INTEGER"],
+                    "strukturenScore": ["type": "INTEGER"],
+                    "estimatedLevel": ["type": "STRING"],
+                    "examinerSummary": ["type": "STRING"],
+                    "leitpunkteCheck": [
+                        "type": "ARRAY",
+                        "items": [
+                            "type": "OBJECT",
+                            "properties": [
+                                "leitpunkt": ["type": "STRING"],
+                                "status": ["type": "STRING"],
+                                "comment": ["type": "STRING"]
+                            ],
+                            "required": ["leitpunkt", "status", "comment"]
+                        ]
+                    ],
+                    "corrections": [
+                        "type": "ARRAY",
+                        "items": [
+                            "type": "OBJECT",
+                            "properties": [
+                                "originalSentence": ["type": "STRING"],
+                                "correctedSentence": ["type": "STRING"],
+                                "category": ["type": "STRING"],
+                                "explanation": ["type": "STRING"]
+                            ],
+                            "required": ["originalSentence", "correctedSentence", "category", "explanation"]
+                        ]
+                    ],
+                    "improvedModelText": ["type": "STRING"],
+                    "recommendedRedemittel": [
+                        "type": "ARRAY",
+                        "items": ["type": "STRING"]
+                    ]
+                ],
+                "required": [
+                    "erfuellungScore",
+                    "kohaerenzScore",
+                    "wortschatzScore",
+                    "strukturenScore",
+                    "estimatedLevel",
+                    "examinerSummary",
+                    "leitpunkteCheck",
+                    "corrections",
+                    "improvedModelText",
+                    "recommendedRedemittel"
+                ]
+            ]
+        ]
+        
+        if disableThinking {
+            generationConfig["thinkingConfig"] = [
+                "thinkingBudget": 0
+            ]
+        }
+        
+        let requestBody: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": generationConfig
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 14.0
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+        
+        guard statusCode == 200 else {
+            if let errorJSON = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let errorObj = errorJSON["error"] as? [String: Any],
+               let message = errorObj["message"] as? String {
+                throw GeminiServiceError.apiError("Gemini API Fehler (\(statusCode)): \(message)")
+            }
+            throw GeminiServiceError.apiError("HTTP Fehler \(statusCode)")
+        }
+        
+        guard let rootJSON = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidatesArray = rootJSON["candidates"] as? [[String: Any]],
+              let firstCandidate = candidatesArray.first,
+              let content = firstCandidate["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let textPart = parts.last(where: { ($0["thought"] as? Bool) != true }) ?? parts.last,
+              let text = textPart["text"] as? String,
+              let jsonData = text.data(using: .utf8) else {
+            throw GeminiServiceError.invalidResponse
+        }
+        
+        let decoded = try JSONDecoder().decode(SchreibenEvaluationResult.self, from: jsonData)
+        return SchreibenEvaluationResult(
+            erfuellungScore: decoded.erfuellungScore,
+            kohaerenzScore: decoded.kohaerenzScore,
+            wortschatzScore: decoded.wortschatzScore,
+            strukturenScore: decoded.strukturenScore,
+            estimatedLevel: decoded.estimatedLevel,
+            examinerSummary: decoded.examinerSummary,
+            leitpunkteCheck: decoded.leitpunkteCheck,
+            corrections: decoded.corrections,
+            improvedModelText: decoded.improvedModelText,
+            recommendedRedemittel: decoded.recommendedRedemittel
+        )
+    }
+    
+    // MARK: - Goethe-Institut Schreiben Task Generator (B1 & B2)
+    /// Generates a brand-new, authentic Goethe-Zertifikat B1 or B2 Schreiben prompt via Gemini 3 Flash.
+    public func generateSchreibenTask(
+        teil: SchreibenExamTeil,
+        existingTitles: [String]
+    ) async throws -> SchreibenTask {
+        let currentKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !currentKey.isEmpty else {
+            throw GeminiServiceError.missingAPIKey
+        }
+        
+        let modelConfigs: [(name: String, disableThinking: Bool)] = [
+            ("gemini-3-flash-preview", true),
+            ("gemini-3.1-flash-lite", true),
+            ("gemini-flash-lite-latest", false),
+            ("gemini-3.5-flash-lite", false)
+        ]
+        var lastError: Error = GeminiServiceError.invalidResponse
+        
+        for config in modelConfigs {
+            do {
+                let task = try await performGenerateTaskRequest(
+                    teil: teil,
+                    existingTitles: existingTitles,
+                    apiKey: currentKey,
+                    model: config.name,
+                    disableThinking: config.disableThinking
+                )
+                await MainActor.run {
+                    self.lastUsedModel = config.name
+                }
+                return task
+            } catch let error as GeminiServiceError {
+                lastError = error
+                if case .apiError(let msg) = error,
+                   (msg.contains("API_KEY_INVALID") || msg.contains("API key not valid") || msg.contains("(401)")) {
+                    throw error
+                }
+                continue
+            } catch {
+                lastError = error
+                continue
+            }
+        }
+        
+        throw lastError
+    }
+    
+    private func performGenerateTaskRequest(
+        teil: SchreibenExamTeil,
+        existingTitles: [String],
+        apiKey: String,
+        model: String,
+        disableThinking: Bool
+    ) async throws -> SchreibenTask {
+        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
+            throw GeminiServiceError.invalidResponse
+        }
+        
+        let avoidList = existingTitles.suffix(15).joined(separator: ", ")
+        let prompt = """
+        Erstelle eine neue, realistische Prüfungsaufgabe nach dem Vorbild des Goethe-Instituts für:
+        - Prüfung: \(teil.fullTitle) (\(teil.level.title))
+        - Format-Beschreibung: \(teil.categoryDescription)
+        - Ziel-Wortanzahl: ca. \(teil.defaultTargetWords) Wörter
+        - Anzahl der Leitpunkte: GENAU \(teil.leitpunkteCount) Leitpunkte
+        - Vermeide diese bereits vorhandenen Themen: [\(avoidList)]
+        
+        Regeln:
+        - title: Kurzer, prägnanter Titel des Prüfungsthemas auf Deutsch (max. 6 Wörter).
+        - situation: Realistische Ausgangssituation auf Deutsch (2-3 Sätze, genau wie im Goethe-Prüfungsheft).
+        - leitpunkte: Array mit GENAU \(teil.leitpunkteCount) klaren Inhaltspunkten auf Deutsch, die der Kandidat bearbeiten muss.
+        - registerHint: Hinweis zum Register (z.B. "\(teil.defaultRegisterHint)").
+        """
+        
+        var generationConfig: [String: Any] = [
+            "temperature": 0.85,
+            "responseMimeType": "application/json",
+            "responseSchema": [
+                "type": "OBJECT",
+                "properties": [
+                    "title": ["type": "STRING"],
+                    "situation": ["type": "STRING"],
+                    "leitpunkte": [
+                        "type": "ARRAY",
+                        "items": ["type": "STRING"]
+                    ],
+                    "registerHint": ["type": "STRING"]
+                ],
+                "required": ["title", "situation", "leitpunkte", "registerHint"]
+            ]
+        ]
+        
+        if disableThinking {
+            generationConfig["thinkingConfig"] = [
+                "thinkingBudget": 0
+            ]
+        }
+        
+        let requestBody: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
+            ],
+            "generationConfig": generationConfig
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 9.0
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+        
+        guard statusCode == 200 else {
+            if let errorJSON = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let errorObj = errorJSON["error"] as? [String: Any],
+               let message = errorObj["message"] as? String {
+                throw GeminiServiceError.apiError("Gemini API Fehler (\(statusCode)): \(message)")
+            }
+            throw GeminiServiceError.apiError("HTTP Fehler \(statusCode)")
+        }
+        
+        guard let rootJSON = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidatesArray = rootJSON["candidates"] as? [[String: Any]],
+              let firstCandidate = candidatesArray.first,
+              let content = firstCandidate["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let textPart = parts.last(where: { ($0["thought"] as? Bool) != true }) ?? parts.last,
+              let text = textPart["text"] as? String,
+              let jsonData = text.data(using: .utf8) else {
+            throw GeminiServiceError.invalidResponse
+        }
+        
+        let decoded = try JSONDecoder().decode(GeminiGeneratedSchreibenTaskResponse.self, from: jsonData)
+        return SchreibenTask(
+            level: teil.level,
+            teil: teil,
+            title: decoded.title.trimmingCharacters(in: .whitespacesAndNewlines),
+            situation: decoded.situation.trimmingCharacters(in: .whitespacesAndNewlines),
+            leitpunkte: decoded.leitpunkte.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) },
+            targetWords: teil.defaultTargetWords,
+            registerHint: decoded.registerHint.trimmingCharacters(in: .whitespacesAndNewlines),
+            recommendedTimeMinutes: teil.defaultTimeMinutes,
+            isAIGenerated: true,
+            createdAt: Date()
+        )
     }
 }

@@ -21,6 +21,11 @@
 		D9792A512A6822D672C7CD52 /* GrammarHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB2A1292502FC216E987B32 /* GrammarHubView.swift */; };
 		E9792A512A6822D672C7CD53 /* SatzbauGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2A1292502FC216E987B33 /* SatzbauGameView.swift */; };
 		F9792A512A6822D672C7CD54 /* StrukturSprintGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB2A1292502FC216E987B34 /* StrukturSprintGameView.swift */; };
+		A9792A512A6822D672C7CD55 /* SchreibenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB2A1292502FC216E987B35 /* SchreibenModels.swift */; };
+		B9792A512A6822D672C7CD56 /* SchreibenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2A1292502FC216E987B36 /* SchreibenStore.swift */; };
+		C9792A512A6822D672C7CD57 /* SchreibenHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB2A1292502FC216E987B37 /* SchreibenHubView.swift */; };
+		D9792A512A6822D672C7CD58 /* SchreibenExamWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AB2A1292502FC216E987B38 /* SchreibenExamWorkspaceView.swift */; };
+		E9792A512A6822D672C7CD59 /* SchreibenResultSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB2A1292502FC216E987B39 /* SchreibenResultSheetView.swift */; };
 		687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
 		1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1014FA971BE18F35D22A /* EloBadge.swift */; };
 		F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D944E6EDBC7754A6BF538530 /* WordRowView.swift */; };
@@ -40,6 +45,7 @@
 		F3E75360844DC3F0AF8DFB00 /* EmbeddedDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4811B095E221061620E1A9FB /* EmbeddedDataset.swift */; };
 		DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */ = {isa = PBXBuildFile; fileRef = C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */; };
 		EA0F943D73307347AB6D162C /* grammar_exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */; };
+		FA0F943D73307347AB6D162D /* official_schreiben_samples.json in Resources */ = {isa = PBXBuildFile; fileRef = E7ECCB1E1454F8775EC3F8D4 /* official_schreiben_samples.json */; };
 		48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */; };
 		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -60,6 +66,11 @@
 		9AB2A1292502FC216E987B32 /* GrammarHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GrammarHubView.swift"; sourceTree = "<group>"; };
 		0AB2A1292502FC216E987B33 /* SatzbauGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SatzbauGameView.swift"; sourceTree = "<group>"; };
 		1AB2A1292502FC216E987B34 /* StrukturSprintGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StrukturSprintGameView.swift"; sourceTree = "<group>"; };
+		2AB2A1292502FC216E987B35 /* SchreibenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchreibenModels.swift"; sourceTree = "<group>"; };
+		3AB2A1292502FC216E987B36 /* SchreibenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchreibenStore.swift"; sourceTree = "<group>"; };
+		4AB2A1292502FC216E987B37 /* SchreibenHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchreibenHubView.swift"; sourceTree = "<group>"; };
+		5AB2A1292502FC216E987B38 /* SchreibenExamWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchreibenExamWorkspaceView.swift"; sourceTree = "<group>"; };
+		6AB2A1292502FC216E987B39 /* SchreibenResultSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchreibenResultSheetView.swift"; sourceTree = "<group>"; };
 		3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyStore.swift"; sourceTree = "<group>"; };
 		17CB1014FA971BE18F35D22A /* EloBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloBadge.swift"; sourceTree = "<group>"; };
 		D944E6EDBC7754A6BF538530 /* WordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordRowView.swift"; sourceTree = "<group>"; };
@@ -79,6 +90,7 @@
 		4811B095E221061620E1A9FB /* EmbeddedDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbeddedDataset.swift"; sourceTree = "<group>"; };
 		C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "wortschatz.csv"; sourceTree = "<group>"; };
 		D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "grammar_exercises.json"; sourceTree = "<group>"; };
+		E7ECCB1E1454F8775EC3F8D4 /* official_schreiben_samples.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "official_schreiben_samples.json"; sourceTree = "<group>"; };
 		E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "appicon_source.jpg"; sourceTree = "<group>"; };
 		8422F1B5C0821327E76963AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,6 +141,7 @@
 			children = (
 				A59BF57160938FCEF46E263E /* VocabularyWord.swift */,
 				7AB2A1292502FC216E987B30 /* GrammarTopic.swift */,
+				2AB2A1292502FC216E987B35 /* SchreibenModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -151,6 +164,7 @@
 			children = (
 				3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */,
 				8AB2A1292502FC216E987B31 /* GrammarStore.swift */,
+				3AB2A1292502FC216E987B36 /* SchreibenStore.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -168,9 +182,20 @@
 				966EA2472C7A3B121887D939 /* Quiz */,
 				776EA2472C7A3B121887D940 /* Dictation */,
 				886EA2472C7A3B121887D941 /* Grammar */,
+				996EA2472C7A3B121887D942 /* Schreiben */,
 				A12F749955CE4BACE9F7C1B8 /* Components */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		996EA2472C7A3B121887D942 /* Schreiben */ = {
+			isa = PBXGroup;
+			children = (
+				4AB2A1292502FC216E987B37 /* SchreibenHubView.swift */,
+				5AB2A1292502FC216E987B38 /* SchreibenExamWorkspaceView.swift */,
+				6AB2A1292502FC216E987B39 /* SchreibenResultSheetView.swift */,
+			);
+			path = Schreiben;
 			sourceTree = "<group>";
 		};
 		886EA2472C7A3B121887D941 /* Grammar */ = {
@@ -242,6 +267,7 @@
 			children = (
 				C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */,
 				D7ECCB1E1454F8775EC3F8D3 /* grammar_exercises.json */,
+				E7ECCB1E1454F8775EC3F8D4 /* official_schreiben_samples.json */,
 				E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */,
 				4811B095E221061620E1A9FB /* EmbeddedDataset.swift */,
 			);
@@ -310,6 +336,7 @@
 			files = (
 				DA0F943D73307347AB6D162B /* wortschatz.csv in Resources */,
 				EA0F943D73307347AB6D162C /* grammar_exercises.json in Resources */,
+				FA0F943D73307347AB6D162D /* official_schreiben_samples.json in Resources */,
 				48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */,
 				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
 			);
@@ -336,6 +363,11 @@
 				D9792A512A6822D672C7CD52 /* GrammarHubView.swift in Sources */,
 				E9792A512A6822D672C7CD53 /* SatzbauGameView.swift in Sources */,
 				F9792A512A6822D672C7CD54 /* StrukturSprintGameView.swift in Sources */,
+				A9792A512A6822D672C7CD55 /* SchreibenModels.swift in Sources */,
+				B9792A512A6822D672C7CD56 /* SchreibenStore.swift in Sources */,
+				C9792A512A6822D672C7CD57 /* SchreibenHubView.swift in Sources */,
+				D9792A512A6822D672C7CD58 /* SchreibenExamWorkspaceView.swift in Sources */,
+				E9792A512A6822D672C7CD59 /* SchreibenResultSheetView.swift in Sources */,
 				687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */,
 				1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */,
 				F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */,
