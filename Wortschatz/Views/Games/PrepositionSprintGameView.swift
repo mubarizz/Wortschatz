@@ -22,6 +22,8 @@ public struct PrepositionSprintGameView: View {
     @State private var correctAnswersCount: Int = 0
     @State private var totalScore: Int = 0
     @State private var missedEntries: [PrepositionEntry] = []
+    @State private var startingUserElo: Double = 1200.0
+    @State private var latestEloDelta: Double = 0.0
     
     // Blitz Timer state
     @State private var timeRemaining: Int = 60
@@ -31,6 +33,10 @@ public struct PrepositionSprintGameView: View {
     
     public init(vocabStore: VocabularyStore) {
         self.vocabStore = vocabStore
+    }
+    
+    private var sessionEloDelta: Double {
+        vocabStore.userElo - startingUserElo
     }
     
     private var currentQuestion: PrepositionQuestion? {
@@ -99,14 +105,45 @@ public struct PrepositionSprintGameView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     if isGameActive && !isGameOver {
+                        HStack(spacing: 6) {
+                            HStack(spacing: 2) {
+                                Image(systemName: "flame.fill")
+                                    .foregroundColor(currentStreak > 1 ? .orange : .secondary)
+                                    .font(.system(size: 11, weight: .bold))
+                                Text("\(currentStreak)x")
+                                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                    .monospacedDigit()
+                                    .foregroundColor(currentStreak > 1 ? .orange : .secondary)
+                            }
+                            
+                            HStack(spacing: 3) {
+                                Image(systemName: "crown.fill")
+                                    .foregroundColor(vocabStore.userRankColor)
+                                    .font(.system(size: 10, weight: .bold))
+                                Text("\(Int(round(vocabStore.userElo)))")
+                                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                    .monospacedDigit()
+                                    .foregroundColor(.primary)
+                                if sessionEloDelta != 0 {
+                                    Text(sessionEloDelta > 0 ? "+\(Int(round(sessionEloDelta)))" : "\(Int(round(sessionEloDelta)))")
+                                        .font(.system(size: 10, weight: .black, design: .rounded))
+                                        .foregroundColor(sessionEloDelta > 0 ? .green : .red)
+                                }
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule().fill(Color(UIColor.tertiarySystemFill))
+                            )
+                        }
+                    } else if !isGameActive {
                         HStack(spacing: 4) {
-                            Image(systemName: "flame.fill")
-                                .foregroundColor(currentStreak > 1 ? .orange : .secondary)
-                                .font(.system(size: 13, weight: .bold))
-                            Text("\(currentStreak)x")
-                                .font(.system(size: 13, weight: .heavy, design: .rounded))
-                                .monospacedDigit()
-                                .foregroundColor(currentStreak > 1 ? .orange : .secondary)
+                            Image(systemName: "crown.fill")
+                                .foregroundColor(vocabStore.userRankColor)
+                                .font(.system(size: 11))
+                            Text("\(Int(round(vocabStore.userElo))) Elo")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -411,9 +448,15 @@ public struct PrepositionSprintGameView: View {
                                     .foregroundColor(selectedOptionIndex == question.correctIndex ? .green : .red)
                                     .font(.system(size: 16, weight: .bold))
                                 
-                                Text(selectedOptionIndex == question.correctIndex ? "Richtig! +\(pointsForCurrentAnswer()) Pkt." : "Leider falsch!")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(selectedOptionIndex == question.correctIndex ? .green : .red)
+                                HStack(spacing: 4) {
+                                    Text(selectedOptionIndex == question.correctIndex ? "Richtig! +\(pointsForCurrentAnswer()) Pkt." : "Leider falsch!")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(selectedOptionIndex == question.correctIndex ? .green : .red)
+                                    
+                                    Text(latestEloDelta >= 0 ? "(+\(String(format: "%.1f", latestEloDelta)) Elo)" : "(\(String(format: "%.1f", latestEloDelta)) Elo)")
+                                        .font(.system(size: 11, weight: .black, design: .rounded))
+                                        .foregroundColor(latestEloDelta >= 0 ? .green : .red)
+                                }
                                 
                                 Spacer()
                                 
@@ -588,6 +631,64 @@ public struct PrepositionSprintGameView: View {
                         .fill(Color(UIColor.secondarySystemGroupedBackground))
                 )
                 
+                // Elo Result Card
+                VStack(spacing: 8) {
+                    HStack(alignment: .center, spacing: 10) {
+                        ZStack {
+                            Circle()
+                                .fill(vocabStore.userRankColor.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                            Image(systemName: "crown.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(vocabStore.userRankColor)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Neues Elo-Rating")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.secondary)
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Text("\(Int(round(vocabStore.userElo)))")
+                                    .font(.system(size: 24, weight: .black, design: .rounded))
+                                    .foregroundColor(.primary)
+                                Text("Elo")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                
+                                let delta = sessionEloDelta
+                                Text(delta >= 0 ? "+\(Int(round(delta)))" : "\(Int(round(delta)))")
+                                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                                    .foregroundColor(delta >= 0 ? .green : .red)
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 2)
+                                    .background(
+                                        Capsule().fill(delta >= 0 ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+                                    )
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(vocabStore.userRankTitle)
+                                .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                .foregroundColor(vocabStore.userRankColor)
+                            Text("\(vocabStore.totalReviews) Gesamt-Reviews")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(vocabStore.userRankColor.opacity(0.25), lineWidth: 1)
+                )
+                
                 // Missed Questions List
                 if !missedEntries.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
@@ -668,6 +769,8 @@ public struct PrepositionSprintGameView: View {
     // MARK: - Game Logic & Handlers
     private func startSession() {
         stopTimer()
+        startingUserElo = vocabStore.userElo
+        latestEloDelta = 0.0
         questions = prepStore.buildQuestions(mode: selectedMode, levelFilter: selectedLevel)
         currentIndex = 0
         selectedOptionIndex = nil
@@ -716,6 +819,7 @@ public struct PrepositionSprintGameView: View {
         
         prepStore.recordAnswer(entryId: q.entry.id, wasCorrect: isCorrect)
         
+        let eloDelta: Double
         if isCorrect {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             currentStreak += 1
@@ -724,11 +828,26 @@ public struct PrepositionSprintGameView: View {
             }
             correctAnswersCount += 1
             totalScore += pointsForCurrentAnswer()
+            
+            // Calculate Elo gain based on CEFR level and streak
+            let baseElo: Double
+            switch q.entry.cefrLevel {
+            case "C1": baseElo = 5.0
+            case "B2": baseElo = 3.5
+            default: baseElo = 2.5
+            }
+            let streakMultiplier: Double = currentStreak >= 6 ? 1.5 : (currentStreak >= 3 ? 1.25 : 1.0)
+            eloDelta = baseElo * streakMultiplier
         } else {
             UINotificationFeedbackGenerator().notificationOccurred(.error)
             currentStreak = 0
             missedEntries.append(q.entry)
+            eloDelta = -2.0
         }
+        
+        latestEloDelta = eloDelta
+        // Apply and persist Elo immediately in VocabularyStore in real time
+        vocabStore.recordExternalGameActivity(points: eloDelta, reviewsCount: 1)
         
         // Auto-advance in Blitz mode after brief pause for adrenaline flow
         if selectedMode == .blitz {
@@ -759,12 +878,10 @@ public struct PrepositionSprintGameView: View {
         
         if selectedMode == .blitz {
             prepStore.saveBlitzBestScore(correctAnswersCount)
-        }
-        
-        // Award Elo rating / XP in VocabularyStore
-        if correctAnswersCount > 0 {
-            let eloGain = min(25.0, Double(correctAnswersCount) * 1.5)
-            vocabStore.recordExternalGameActivity(points: eloGain, reviewsCount: correctAnswersCount)
+            // Bonus Elo for completing blitz with high score
+            if correctAnswersCount >= 10 {
+                vocabStore.recordExternalGameActivity(points: 5.0, reviewsCount: 0)
+            }
         }
     }
     
