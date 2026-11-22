@@ -89,7 +89,7 @@ public struct GeminiWordSearchSheet: View {
                     query = initialQuery
                 }
                 let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty && gemini.hasValidKey && candidates.isEmpty {
+                if !trimmed.isEmpty && candidates.isEmpty {
                     triggerSearch()
                 }
             }

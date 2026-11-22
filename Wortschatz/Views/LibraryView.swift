@@ -28,7 +28,7 @@ public struct LibraryView: View {
     @State private var selectedWordForDetail: VocabularyWord?
     @State private var geminiSearchRequest: GeminiSearchSheetRequest? = nil
     
-    let filterOptions = ["Alle", "der", "die", "das", "Verb", "Adjektiv", "B2"]
+    let filterOptions = ["Alle", "der", "die", "das", "Verb", "Adjektiv", "Adverb", "B2"]
     
     public init(store: VocabularyStore) {
         self.store = store
@@ -71,6 +71,8 @@ public struct LibraryView: View {
                 return word.category == .verb
             case "Adjektiv":
                 return word.category == .adjective
+            case "Adverb":
+                return word.category == .adverb || word.articleOrType.lowercased().contains("adv")
             case "B2":
                 return word.isB2MasteryReached
             default:

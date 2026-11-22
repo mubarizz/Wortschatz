@@ -122,6 +122,7 @@ public final class GeminiService: ObservableObject {
         didSet {
             let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             UserDefaults.standard.set(trimmed, forKey: apiKeyDefaultsKey)
+            SharedLookupBridge.shared.saveSharedGeminiAPIKey(trimmed)
         }
     }
     
@@ -129,8 +130,12 @@ public final class GeminiService: ObservableObject {
         let saved = UserDefaults.standard.string(forKey: apiKeyDefaultsKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !saved.isEmpty {
             self.apiKey = saved
+            SharedLookupBridge.shared.saveSharedGeminiAPIKey(saved)
+        } else if let sharedKey = SharedLookupBridge.shared.loadSharedGeminiAPIKey(), !sharedKey.isEmpty {
+            self.apiKey = sharedKey
         } else if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"], !envKey.isEmpty {
             self.apiKey = envKey
+            SharedLookupBridge.shared.saveSharedGeminiAPIKey(envKey)
         } else {
             self.apiKey = ""
         }
@@ -140,7 +145,7 @@ public final class GeminiService: ObservableObject {
         !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
-    /// Queries Gemini 3 Flash with zero thinking overhead (~1.8–2.1s latency) for 3 German vocabulary candidates across CEFR levels (A1–C2)
+    /// Queries Gemini 3 Flash with zero thinking overhead (~1.8–2.1s latency) for 3 German vocabulary candidates across CEFR levels (A1–C2), with automatic zero-key fallback to Wiktionary DE+EN lexicon
     public func searchWords(query: String) async throws -> [GeminiWordCandidate] {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
@@ -153,7 +158,15 @@ public final class GeminiService: ObservableObject {
         }
         
         let currentKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !currentKey.isEmpty else {
+        if currentKey.isEmpty {
+            let fallbackCandidates = await SharedLookupBridge.shared.lookupViaWiktionary(query: trimmedQuery)
+            if !fallbackCandidates.isEmpty {
+                await MainActor.run {
+                    self.lastUsedModel = "Wiktionary DE/EN"
+                    self.queryCache[cacheKey] = fallbackCandidates
+                }
+                return fallbackCandidates
+            }
             throw GeminiServiceError.missingAPIKey
         }
         
@@ -184,13 +197,23 @@ public final class GeminiService: ObservableObject {
                 // Stop immediately only if the API key itself is rejected as invalid
                 if case .apiError(let msg) = error,
                    (msg.contains("API_KEY_INVALID") || msg.contains("API key not valid") || msg.contains("(401)")) {
-                    throw error
+                    break
                 }
                 continue
             } catch {
                 lastError = error
                 continue
             }
+        }
+        
+        // Fallback to Wiktionary DE+EN so lookup never fails even if API key quota is exceeded
+        let fallbackCandidates = await SharedLookupBridge.shared.lookupViaWiktionary(query: trimmedQuery)
+        if !fallbackCandidates.isEmpty {
+            await MainActor.run {
+                self.lastUsedModel = "Wiktionary DE/EN"
+                self.queryCache[cacheKey] = fallbackCandidates
+            }
+            return fallbackCandidates
         }
         
         throw lastError

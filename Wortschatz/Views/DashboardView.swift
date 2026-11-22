@@ -8,6 +8,7 @@ public struct DashboardView: View {
     let onStartFlashcards: () -> Void
     var onStartDictation: (() -> Void)? = nil
     var onStartPrepositionSprint: (() -> Void)? = nil
+    var onStartQuickLookup: ((String) -> Void)? = nil
     
     @State private var selectedWordForDetail: VocabularyWord?
     
@@ -17,7 +18,8 @@ public struct DashboardView: View {
         onStartReverseQuiz: @escaping () -> Void,
         onStartFlashcards: @escaping () -> Void,
         onStartDictation: (() -> Void)? = nil,
-        onStartPrepositionSprint: (() -> Void)? = nil
+        onStartPrepositionSprint: (() -> Void)? = nil,
+        onStartQuickLookup: ((String) -> Void)? = nil
     ) {
         self.store = store
         self.onStartCloze = onStartCloze
@@ -25,6 +27,7 @@ public struct DashboardView: View {
         self.onStartFlashcards = onStartFlashcards
         self.onStartDictation = onStartDictation
         self.onStartPrepositionSprint = onStartPrepositionSprint
+        self.onStartQuickLookup = onStartQuickLookup
     }
     
     public var body: some View {
@@ -155,6 +158,71 @@ public struct DashboardView: View {
                             .strokeBorder(Color.indigo.opacity(0.18), lineWidth: 1)
                     )
                     .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+                    
+                    // MARK: - 1B. Podcast & Text Schnell-Nachschlagen Bar
+                    if let onStartQuickLookup = onStartQuickLookup {
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                onStartQuickLookup("")
+                            }) {
+                                HStack(spacing: 8) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.indigo.opacity(0.14))
+                                            .frame(width: 34, height: 34)
+                                        Image(systemName: "text.magnifyingglass")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.indigo)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text("Podcast & Text Lookup")
+                                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                                            .foregroundColor(.primary)
+                                        Text("Auch über iOS „Teilen ➔ Wortschatz“ in Podcasts")
+                                            .font(.system(size: 10, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    
+                                    Spacer(minLength: 4)
+                                }
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 9)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(Color(UIColor.secondarySystemGroupedBackground))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .strokeBorder(Color.indigo.opacity(0.22), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(ScaleButtonStyle(scaleAmount: 0.98))
+                            
+                            Button(action: {
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                let pasted = UIPasteboard.general.string ?? ""
+                                onStartQuickLookup(pasted)
+                            }) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "doc.on.clipboard.fill")
+                                        .font(.system(size: 12, weight: .bold))
+                                    Text("Paste")
+                                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .frame(height: 52)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(Color.indigo)
+                                )
+                            }
+                            .buttonStyle(ScaleButtonStyle(scaleAmount: 0.96))
+                        }
+                    }
                     
                     // MARK: - 2. Quick Game Mode Launchers
                     VStack(spacing: 9) {

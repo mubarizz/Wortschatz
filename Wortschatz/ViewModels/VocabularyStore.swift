@@ -55,6 +55,8 @@ public final class VocabularyStore: ObservableObject {
                 if !decoded.isEmpty {
                     self.words = decoded
                     self.isLoading = false
+                    importPendingWordsFromExtension()
+                    SharedLookupBridge.shared.saveVocabularySnapshot(self.words)
                     return
                 }
             } catch {
@@ -64,6 +66,7 @@ public final class VocabularyStore: ObservableObject {
         
         // 3. Fallback to bundled wortschatz.csv or embedded dataset
         loadFromBundledCSV()
+        importPendingWordsFromExtension()
     }
     
     public func loadFromBundledCSV() {
@@ -180,6 +183,32 @@ public final class VocabularyStore: ObservableObject {
         }
     }
     
+    /// Imports any words saved via the iOS Share Extension ("Im Wortschatz nachschlagen") and awards +5 Elo per discovered word
+    @discardableResult
+    public func importPendingWordsFromExtension() -> [VocabularyWord] {
+        let pending = SharedLookupBridge.shared.loadPendingWords()
+        guard !pending.isEmpty else { return [] }
+        
+        var newlyAdded: [VocabularyWord] = []
+        for item in pending.reversed() {
+            if !hasWord(item.cleanTargetWord) {
+                words.insert(item, at: 0)
+                newlyAdded.append(item)
+            }
+        }
+        
+        SharedLookupBridge.shared.clearPendingWords()
+        
+        if !newlyAdded.isEmpty {
+            let bonusElo = Double(newlyAdded.count) * 5.0
+            self.userElo = max(1000.0, self.userElo + bonusElo)
+            self.lastStudyDate = Date()
+            updateDailyStreak()
+            saveWordsToDisk()
+        }
+        return newlyAdded
+    }
+    
     public func saveWordsToDisk() {
         do {
             let data = try JSONEncoder().encode(words)
@@ -190,6 +219,9 @@ public final class VocabularyStore: ObservableObject {
             UserDefaults.standard.set(dailyStreak, forKey: userDefaultsKeyStreak)
             UserDefaults.standard.set(totalReviews, forKey: userDefaultsKeyTotalReviews)
             UserDefaults.standard.set(lastStudyDate, forKey: userDefaultsKeyLastDate)
+            
+            // Sync vocabulary snapshot for iOS Share Extension
+            SharedLookupBridge.shared.saveVocabularySnapshot(words)
         } catch {
             print("Error persisting words: \(error.localizedDescription)")
         }

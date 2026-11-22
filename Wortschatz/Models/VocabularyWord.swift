@@ -43,12 +43,14 @@ public enum WordCategory: String, Codable, CaseIterable {
     
     public static func from(rawType: String) -> WordCategory {
         let trimmed = rawType.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if trimmed == "der" { return .masculineNoun }
-        if trimmed == "die" { return .feminineNoun }
-        if trimmed == "das" { return .neuterNoun }
-        if trimmed.contains("verb") { return .verb }
+        if trimmed == "der" || trimmed.hasPrefix("der ") || trimmed.hasPrefix("der/") { return .masculineNoun }
+        if trimmed == "die" || trimmed.hasPrefix("die ") || trimmed.hasPrefix("die/") { return .feminineNoun }
+        if trimmed == "das" || trimmed.hasPrefix("das ") || trimmed.hasPrefix("das/") { return .neuterNoun }
+        // Check "adj" and "adv" BEFORE "verb" because "adverb" and "adjektiv/adverb" contain the substring "verb"
         if trimmed.contains("adj") { return .adjective }
         if trimmed.contains("adv") { return .adverb }
+        if trimmed.contains("verb") { return .verb }
+        if trimmed.contains("ausdr") || trimmed.contains("phrase") { return .phrase }
         return .other
     }
 }
@@ -62,8 +64,9 @@ public enum PartOfSpeech: String, Codable, CaseIterable {
     
     public static func from(rawType: String) -> PartOfSpeech {
         let t = rawType.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if t.contains("verb") { return .verb }
+        // Check "adj" and "adv" BEFORE "verb" because "adverb" contains "verb"
         if t.contains("adj") || t.contains("adv") { return .adjective }
+        if t.contains("verb") { return .verb }
         if t == "der" || t == "die" || t == "das" || t.starts(with: "der") || t.starts(with: "die") || t.starts(with: "das") {
             return .noun
         }

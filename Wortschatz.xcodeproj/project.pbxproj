@@ -30,6 +30,9 @@
 		B9792A512A6822D672C7CD61 /* PrepositionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2A1292502FC216E987B41 /* PrepositionData.swift */; };
 		C9792A512A6822D672C7CD62 /* PrepositionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB2A1292502FC216E987B42 /* PrepositionStore.swift */; };
 		D9792A512A6822D672C7CD63 /* PrepositionSprintGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2A1292502FC216E987B43 /* PrepositionSprintGameView.swift */; };
+		A9792A512A6822D672C7CD64 /* SharedLookupBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB2A1292502FC216E987B44 /* SharedLookupBridge.swift */; };
+		C9792A512A6822D672C7CD66 /* WortschatzShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2A1292502FC216E987B51 /* WortschatzShortcuts.swift */; };
+		B9792A512A6822D672C7CD65 /* QuickLookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB2A1292502FC216E987B45 /* QuickLookupView.swift */; };
 		687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
 		1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB1014FA971BE18F35D22A /* EloBadge.swift */; };
 		F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D944E6EDBC7754A6BF538530 /* WordRowView.swift */; };
@@ -52,10 +55,51 @@
 		FA0F943D73307347AB6D162D /* official_schreiben_samples.json in Resources */ = {isa = PBXBuildFile; fileRef = E7ECCB1E1454F8775EC3F8D4 /* official_schreiben_samples.json */; };
 		48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E34547C84EC6DC8370D0A5FC /* appicon_source.jpg */; };
 		6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8422F1B5C0821327E76963AD /* Assets.xcassets */; };
+		/* Extension Build Files */
+		E10000012A6822D672C7CD70 /* LookupExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2A1292502FC216E987B46 /* LookupExtensionViewController.swift */; };
+		E10000022A6822D672C7CD70 /* QuickLookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB2A1292502FC216E987B45 /* QuickLookupView.swift */; };
+		E10000032A6822D672C7CD70 /* SharedLookupBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB2A1292502FC216E987B44 /* SharedLookupBridge.swift */; };
+		E10000042A6822D672C7CD70 /* VocabularyWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59BF57160938FCEF46E263E /* VocabularyWord.swift */; };
+		E10000052A6822D672C7CD70 /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B100374AA8A6ED61D233144 /* CSVParser.swift */; };
+		E10000062A6822D672C7CD70 /* PrepositionSprintModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2A1292502FC216E987B40 /* PrepositionSprintModels.swift */; };
+		E10000072A6822D672C7CD70 /* PrepositionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2A1292502FC216E987B41 /* PrepositionData.swift */; };
+		E10000082A6822D672C7CD70 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB2A1292502FC216E987B2D /* GeminiService.swift */; };
+		E10000092A6822D672C7CD70 /* SchreibenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB2A1292502FC216E987B35 /* SchreibenModels.swift */; };
+		E100000A2A6822D672C7CD70 /* AudioSpeaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2A1292502FC216E987B2C /* AudioSpeaker.swift */; };
+		E100000B2A6822D672C7CD70 /* VocabularyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */; };
+		E100000C2A6822D672C7CD70 /* EloEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B3DD52C2ABE94CB2A1CC53 /* EloEngine.swift */; };
+		E100000D2A6822D672C7CD70 /* EmbeddedDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4811B095E221061620E1A9FB /* EmbeddedDataset.swift */; };
+		E100000E2A6822D672C7CD70 /* wortschatz.csv in Resources */ = {isa = PBXBuildFile; fileRef = C7ECCB1E1454F8775EC3F8D2 /* wortschatz.csv */; };
+		E100000F2A6822D672C7CD70 /* WortschatzLookupExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9AB2A1292502FC216E987B50 /* WortschatzLookupExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E20000012A6822D672C7CD71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1781F676DEDF5767F3243DB0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E30000012A6822D672C7CD72;
+			remoteInfo = WortschatzLookupExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E40000012A6822D672C7CD73 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E100000F2A6822D672C7CD70 /* WortschatzLookupExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		12DBD3B1044731B8C35C4B03 /* Wortschatz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wortschatz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AB2A1292502FC216E987B50 /* WortschatzLookupExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WortschatzLookupExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A59BF57160938FCEF46E263E /* VocabularyWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyWord.swift"; sourceTree = "<group>"; };
 		74B3DD52C2ABE94CB2A1CC53 /* EloEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloEngine.swift"; sourceTree = "<group>"; };
 		5B100374AA8A6ED61D233144 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CSVParser.swift"; sourceTree = "<group>"; };
@@ -79,6 +123,13 @@
 		8AB2A1292502FC216E987B41 /* PrepositionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PrepositionData.swift"; sourceTree = "<group>"; };
 		9AB2A1292502FC216E987B42 /* PrepositionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PrepositionStore.swift"; sourceTree = "<group>"; };
 		0AB2A1292502FC216E987B43 /* PrepositionSprintGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PrepositionSprintGameView.swift"; sourceTree = "<group>"; };
+		1AB2A1292502FC216E987B44 /* SharedLookupBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedLookupBridge.swift"; sourceTree = "<group>"; };
+		7AB2A1292502FC216E987B51 /* WortschatzShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WortschatzShortcuts.swift"; sourceTree = "<group>"; };
+		2AB2A1292502FC216E987B45 /* QuickLookupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickLookupView.swift"; sourceTree = "<group>"; };
+		3AB2A1292502FC216E987B46 /* LookupExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LookupExtensionViewController.swift"; sourceTree = "<group>"; };
+		4AB2A1292502FC216E987B47 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		5AB2A1292502FC216E987B48 /* Wortschatz.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Wortschatz.entitlements"; sourceTree = "<group>"; };
+		6AB2A1292502FC216E987B49 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		3272C9F383BED12C5F5B6004 /* VocabularyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyStore.swift"; sourceTree = "<group>"; };
 		17CB1014FA971BE18F35D22A /* EloBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EloBadge.swift"; sourceTree = "<group>"; };
 		D944E6EDBC7754A6BF538530 /* WordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordRowView.swift"; sourceTree = "<group>"; };
@@ -111,6 +162,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E50000012A6822D672C7CD74 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -118,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				B1E773C33A5514CCECDE17D6 /* Wortschatz */,
+				E60000012A6822D672C7CD75 /* WortschatzLookupExtension */,
 				5C3301D8292DBACEA69EE035 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -126,14 +185,26 @@
 			isa = PBXGroup;
 			children = (
 				12DBD3B1044731B8C35C4B03 /* Wortschatz.app */,
+				9AB2A1292502FC216E987B50 /* WortschatzLookupExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E60000012A6822D672C7CD75 /* WortschatzLookupExtension */ = {
+			isa = PBXGroup;
+			children = (
+				3AB2A1292502FC216E987B46 /* LookupExtensionViewController.swift */,
+				4AB2A1292502FC216E987B47 /* Info.plist */,
+			);
+			path = WortschatzLookupExtension;
 			sourceTree = "<group>";
 		};
 		B1E773C33A5514CCECDE17D6 /* Wortschatz */ = {
 			isa = PBXGroup;
 			children = (
 				3BE0EEB06626618C5A78F249 /* WortschatzApp.swift */,
+				5AB2A1292502FC216E987B48 /* Wortschatz.entitlements */,
+				6AB2A1292502FC216E987B49 /* Info.plist */,
 				1EA5FE75E2352406DC9F4345 /* Models */,
 				C01CC95927AA68025CDF5FCE /* Services */,
 				C51289E1A8124B6C9D47CACA /* ViewModels */,
@@ -165,6 +236,8 @@
 				DC1DE7DDE800AE2A3B24353D /* QuizEngine.swift */,
 				3AB2A1292502FC216E987B2C /* AudioSpeaker.swift */,
 				4AB2A1292502FC216E987B2D /* GeminiService.swift */,
+				1AB2A1292502FC216E987B44 /* SharedLookupBridge.swift */,
+				7AB2A1292502FC216E987B51 /* WortschatzShortcuts.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -278,6 +351,7 @@
 				D944E6EDBC7754A6BF538530 /* WordRowView.swift */,
 				7F57DD4DCA6ADF52F54C9F89 /* WordDetailSheet.swift */,
 				5AB2A1292502FC216E987B2E /* GeminiWordSearchSheet.swift */,
+				2AB2A1292502FC216E987B45 /* QuickLookupView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -304,15 +378,34 @@
 				8BB8ABC24AB723F99D4DD920 /* Sources */,
 				2E736DC4E22966F765AB4C91 /* Frameworks */,
 				01CC597ABAD15DB9D2376BE0 /* Resources */,
+				E40000012A6822D672C7CD73 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E70000012A6822D672C7CD76 /* PBXTargetDependency */,
 			);
 			name = Wortschatz;
 			productName = Wortschatz;
 			productReference = 12DBD3B1044731B8C35C4B03 /* Wortschatz.app */;
 			productType = "com.apple.product-type.application";
+		};
+		E30000012A6822D672C7CD72 /* WortschatzLookupExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E80000012A6822D672C7CD77 /* Build configuration list for PBXNativeTarget "WortschatzLookupExtension" */;
+			buildPhases = (
+				E90000012A6822D672C7CD78 /* Sources */,
+				E50000012A6822D672C7CD74 /* Frameworks */,
+				EA0000012A6822D672C7CD79 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WortschatzLookupExtension;
+			productName = WortschatzLookupExtension;
+			productReference = 9AB2A1292502FC216E987B50 /* WortschatzLookupExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -325,6 +418,11 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					1F464D087A5F461A2CB0709A = {
+						CreatedOnToolsVersion = 15.0;
+						DevelopmentTeam = TF5S3S6T2A;
+						ProvisioningStyle = Automatic;
+					};
+					E30000012A6822D672C7CD72 = {
 						CreatedOnToolsVersion = 15.0;
 						DevelopmentTeam = TF5S3S6T2A;
 						ProvisioningStyle = Automatic;
@@ -345,6 +443,7 @@
 			projectRoot = "";
 			targets = (
 				1F464D087A5F461A2CB0709A /* Wortschatz */,
+				E30000012A6822D672C7CD72 /* WortschatzLookupExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -359,6 +458,14 @@
 				FA0F943D73307347AB6D162D /* official_schreiben_samples.json in Resources */,
 				48AE8027AEB4D18BE79590A7 /* appicon_source.jpg in Resources */,
 				6AFD46B5B024E2AC82162387 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EA0000012A6822D672C7CD79 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E100000E2A6822D672C7CD70 /* wortschatz.csv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +499,9 @@
 				B9792A512A6822D672C7CD61 /* PrepositionData.swift in Sources */,
 				C9792A512A6822D672C7CD62 /* PrepositionStore.swift in Sources */,
 				D9792A512A6822D672C7CD63 /* PrepositionSprintGameView.swift in Sources */,
+				A9792A512A6822D672C7CD64 /* SharedLookupBridge.swift in Sources */,
+				C9792A512A6822D672C7CD66 /* WortschatzShortcuts.swift in Sources */,
+				B9792A512A6822D672C7CD65 /* QuickLookupView.swift in Sources */,
 				687F7E02FC1EAB4786BC2D64 /* VocabularyStore.swift in Sources */,
 				1BC0C95C38FB31ADE62D96AB /* EloBadge.swift in Sources */,
 				F28269EE593CEEA0673B45EF /* WordRowView.swift in Sources */,
@@ -412,7 +522,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E90000012A6822D672C7CD78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10000012A6822D672C7CD70 /* LookupExtensionViewController.swift in Sources */,
+				E10000022A6822D672C7CD70 /* QuickLookupView.swift in Sources */,
+				E10000032A6822D672C7CD70 /* SharedLookupBridge.swift in Sources */,
+				E10000042A6822D672C7CD70 /* VocabularyWord.swift in Sources */,
+				E10000052A6822D672C7CD70 /* CSVParser.swift in Sources */,
+				E10000062A6822D672C7CD70 /* PrepositionSprintModels.swift in Sources */,
+				E10000072A6822D672C7CD70 /* PrepositionData.swift in Sources */,
+				E10000082A6822D672C7CD70 /* GeminiService.swift in Sources */,
+				E10000092A6822D672C7CD70 /* SchreibenModels.swift in Sources */,
+				E100000A2A6822D672C7CD70 /* AudioSpeaker.swift in Sources */,
+				E100000B2A6822D672C7CD70 /* VocabularyStore.swift in Sources */,
+				E100000C2A6822D672C7CD70 /* EloEngine.swift in Sources */,
+				E100000D2A6822D672C7CD70 /* EmbeddedDataset.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E70000012A6822D672C7CD76 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E30000012A6822D672C7CD72 /* WortschatzLookupExtension */;
+			targetProxy = E20000012A6822D672C7CD71 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8527A85BCD20B8CC723F155E /* Debug */ = {
@@ -479,12 +617,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Wortschatz/Wortschatz.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = TF5S3S6T2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wortschatz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wortschatz;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -508,12 +648,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Wortschatz/Wortschatz.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = TF5S3S6T2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wortschatz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wortschatz;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -527,6 +669,54 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mubarizz.Wortschatz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EB0000012A6822D672C7CD7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Wortschatz/Wortschatz.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TF5S3S6T2A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WortschatzLookupExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mubarizz.Wortschatz.LookupExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EC0000012A6822D672C7CD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Wortschatz/Wortschatz.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TF5S3S6T2A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WortschatzLookupExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mubarizz.Wortschatz.LookupExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -550,6 +740,15 @@
 			buildConfigurations = (
 				430E29A08B12F860ACE13995 /* Debug */,
 				E1ED22E4B2C41A6109CC1548 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E80000012A6822D672C7CD77 /* Build configuration list for PBXNativeTarget "WortschatzLookupExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB0000012A6822D672C7CD7A /* Debug */,
+				EC0000012A6822D672C7CD7B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
