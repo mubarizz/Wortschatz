@@ -123,6 +123,7 @@ public final class GeminiService: ObservableObject {
             let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             UserDefaults.standard.set(trimmed, forKey: apiKeyDefaultsKey)
             SharedLookupBridge.shared.saveSharedGeminiAPIKey(trimmed)
+            queryCache.removeAll()
         }
     }
     
@@ -174,8 +175,7 @@ public final class GeminiService: ObservableObject {
         let modelConfigs: [(name: String, disableThinking: Bool)] = [
             ("gemini-3-flash-preview", true),
             ("gemini-3.1-flash-lite", true),
-            ("gemini-flash-lite-latest", false),
-            ("gemini-3.5-flash-lite", false)
+            ("gemini-flash-lite-latest", false)
         ]
         var lastError: Error = GeminiServiceError.invalidResponse
         
@@ -230,23 +230,36 @@ public final class GeminiService: ObservableObject {
         }
         
         let prompt = """
-        German lexicographer (CEFR A1-C2). Query: "\(query)".
-        Return 3 German vocabulary entries related to "\(query)":
-        1. Direct canonical German lemma matching the query.
-        2. Related everyday synonym or word-family member (A1-B2).
-        3. Advanced/expressive synonym or related word (B2-C2).
-        Rules:
-        - articleOrType: "der", "die", "das", "Verb", "Adjektiv", "Adverb", or "Ausdruck".
-        - word: German lemma WITHOUT leading article.
+        You are an authoritative German-English lexicographer (CEFR A1-C2).
+        User search query: "\(query)".
+
+        TASK:
+        Return 3 highly accurate German vocabulary entries that directly answer the query "\(query)":
+
+        CASE 1 — If "\(query)" is a German word (including conjugated verbs, declined nouns/adjectives, plurals, participles, or phrases):
+        - Candidate 1 MUST be the exact canonical German base lemma (Grundform) of "\(query)" in its primary meaning.
+        - Candidate 2:
+          * If the word has a second distinct meaning, homonym, or part of speech (e.g. "das Schloss" = castle vs. lock; "überlegen" = Verb [to consider] vs. Adjektiv [superior]; "ausmachen" = to switch off vs. to agree upon / matter; "umfahren" = to drive around vs. to run over; "der/die Leiter"; "anhalten"; "geraten"), Candidate 2 MUST be that second distinct meaning or part of speech of the SAME word.
+          * Otherwise, Candidate 2 MUST be a direct fixed expression, reflexive/prepositional usage (e.g. "sich entscheiden für + Akk.", "Eindruck hinterlassen"), or direct word-family derivative of "\(query)" (sharing the same root stem).
+        - Candidate 3:
+          * Either a third distinct meaning/collocation of "\(query)", or one strict, interchangeable synonym with the EXACT same meaning and part of speech as Candidate 1.
+          * NEVER return loosely associated objects or unrelated words (e.g. NEVER return "Schlüssel" for "Schloss").
+
+        CASE 2 — If "\(query)" is an English word or phrase (e.g. "sustainable", "apply", "decision"):
+        - Return the 3 best German translations for "\(query)" (ordered from the most direct everyday lemma to B2/C1 nuances). Never return the English word itself as the German lemma.
+
+        STRICT FIELD RULES:
+        - articleOrType: MUST be exact: "der", "die", "das" (for nouns — double-check grammatical gender!), "Verb", "Adjektiv", "Adverb", or "Ausdruck".
+        - word: Canonical German lemma WITHOUT leading article (der/die/das).
         - cefrLevel: "A1", "A2", "B1", "B2", "C1", or "C2".
-        - englishDefinition: Concise English translation.
-        - germanDefinition: Clear German explanation WITHOUT using the target word itself.
-        - b1Example: Natural German B1 sentence containing the target word.
-        - b2Example: Rich German B2 sentence containing the target word.
+        - englishDefinition: Precise English translation of THIS specific meaning.
+        - germanDefinition: Clear German explanation of THIS specific meaning WITHOUT using the target word itself.
+        - b1Example: Natural German B1 sentence demonstrating THIS specific meaning.
+        - b2Example: Rich German B2 sentence demonstrating THIS specific meaning.
         """
         
         var generationConfig: [String: Any] = [
-            "temperature": 0.2,
+            "temperature": 0.1,
             "responseMimeType": "application/json",
             "responseSchema": [
                 "type": "OBJECT",
@@ -301,7 +314,7 @@ public final class GeminiService: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 7.0
+        request.timeoutInterval = 12.0
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
         let (data, response) = try await URLSession.shared.data(for: request)

@@ -51,13 +51,13 @@ public struct LibraryView: View {
                 if !word.isLearned { return false }
             }
             
-            // 2. Search text filter (handles articles, trailing keyboard spaces, and diacritics)
+            // 2. Search text filter (strictly matches target word or primary English translation without false positives from long German explanation sentences)
+            let cleanEnglish = word.englishDefinition.replacingOccurrences(of: #"\s*\([^)]*\)"#, with: "", options: .regularExpression)
             let matchesSearch = query.isEmpty ||
                 word.word.localizedStandardContains(query) ||
                 word.displayTitle.localizedStandardContains(query) ||
                 word.cleanTargetWord.localizedStandardContains(query) ||
-                word.englishDefinition.localizedStandardContains(query) ||
-                word.germanDefinition.localizedStandardContains(query)
+                cleanEnglish.localizedStandardContains(query)
             
             if !matchesSearch { return false }
             
